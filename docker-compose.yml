@@ -1,0 +1,122 @@
+version: "3.9"
+
+# ── UrbanPulse Full Stack ──────────────────────────────────────────────────────
+# Services: MySQL → Spring Boot → AI Service ← Angular (dev server)
+#
+# Start everything:
+#   docker compose up --build
+#
+# Start only backend + DB + AI:
+#   docker compose up mysql backend ai-service
+#
+# Health checks:
+#   Spring Boot: http://localhost:8080/api/actuator/health
+#   AI Service:  http://localhost:8000/api/health
+#   Angular:     http://localhost:4200
+
+services:
+
+  # ── MySQL 8.0 ───────────────────────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: urbanpulse-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: urbanpulse
+      MYSQL_USER: urbanpulse_user
+      MYSQL_PASSWORD: urbanpulse_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - urbanpulse-net
+
+  # ── Spring Boot Backend ──────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: urbanpulse-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/urbanpulse?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8"
+      SPRING_DATASOURCE_USERNAME: urbanpulse_user
+      SPRING_DATASOURCE_PASSWORD: urbanpulse_pass
+      URBANPULSE_JWT_SECRET: "${JWT_SECRET:-urbanpulse-super-secret-jwt-key-2026-must-be-at-least-256-bits-long}"
+      URBANPULSE_CORS_ALLOWED_ORIGINS: "http://localhost:4200,http://localhost:3000"
+      AI_SERVICE_URL: "http://ai-service:8000/api"
+      AI_SERVICE_SECRET: "${INTERNAL_SECRET:-change_this_in_production_please}"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    networks:
+      - urbanpulse-net
+
+  # ── Python AI Service ────────────────────────────────────────────────────────
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: urbanpulse-ai
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
+      SPRING_BACKEND_URL: "http://backend:8080/api"
+      INTERNAL_SECRET: "${INTERNAL_SECRET:-change_this_in_production_please}"
+      ENVIRONMENT: "production"
+      LOG_LEVEL: "INFO"
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - urbanpulse-net
+
+  # ── Angular Frontend (development) ──────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: urbanpulse-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: development
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend/src:/app/src   # live reload in dev
+    networks:
+      - urbanpulse-net
+
+volumes:
+  mysql_data:
+
+networks:
+  urbanpulse-net:
+    driver: bridge

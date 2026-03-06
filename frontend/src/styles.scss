@@ -1,0 +1,447 @@
+/* UrbanPulse Global Styles — Performance Optimized */
+
+/*
+  PERFORMANCE NOTES:
+  - backdrop-filter removed from .card (GPU killer on scroll)
+  - transition: all → explicit properties only
+  - will-change used sparingly and only where GPU layer is needed
+  - contain: layout/paint on isolated sections
+  - scroll-behavior: smooth removed (causes jank with Angular router)
+  - Font weights reduced: only loaded weights used
+*/
+
+/* ── CSS Variables ────────────────────────────────────────────────── */
+:root {
+  --primary:       #0A0E1A;
+  --primary-light: #111827;
+  --surface:       #141B2D;
+  --surface-alt:   #1E2A42;
+  --accent:        #00D4FF;
+  --accent-dim:    #00A8CC;
+  --accent-glow:   rgba(0, 212, 255, 0.12);
+  --accent2:       #FF6B35;
+  --accent2-glow:  rgba(255, 107, 53, 0.12);
+  --success:       #00E5A0;
+  --warning:       #FFB020;
+  --danger:        #FF4D6D;
+  --text:          #E8EDF5;
+  --text-muted:    #8896A9;
+  --text-dim:      #4A5568;
+  --border:        rgba(255,255,255,0.08);
+  --border-accent: rgba(0, 212, 255, 0.3);
+  /* Higher opacity so we don't need backdrop-filter blur */
+  --card-bg:       #151d30;
+  --card-bg-hover: #1a2438;
+  --glass:         rgba(255, 255, 255, 0.04);
+  --font-display:  'Syne', sans-serif;
+  --font-body:     'Space Grotesk', sans-serif;
+  --font-mono:     'JetBrains Mono', monospace;
+  --radius-sm:     6px;
+  --radius:        12px;
+  --radius-lg:     20px;
+  --shadow:        0 4px 20px rgba(0,0,0,0.35);
+  --shadow-accent: 0 0 32px rgba(0, 212, 255, 0.08);
+  /* Explicit transitions — never use "all" */
+  --t-color:  color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+  --t-transform: transform 0.18s ease;
+  --t-shadow: box-shadow 0.18s ease;
+  --t-ui:     color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+/* ── Reset ────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  /* NO scroll-behavior: smooth — causes jank with Angular router transitions */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--primary);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  /* Promote body to GPU composite layer for smooth scrolling */
+  transform: translateZ(0);
+}
+
+/* ── Typography ───────────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: var(--t-color);
+}
+a:hover { color: var(--accent-dim); }
+
+/* ── Scrollbar ────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--primary); }
+::-webkit-scrollbar-thumb { background: var(--surface-alt); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-dim); }
+
+/* ── Layout ───────────────────────────────────────────────────────── */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section    { padding: 5rem 0; }
+.section-sm { padding: 3rem 0; }
+
+/* ── Badge ────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+
+  &.badge-cyan {
+    background: rgba(0, 212, 255, 0.1);
+    color: var(--accent);
+    border: 1px solid rgba(0, 212, 255, 0.22);
+  }
+  &.badge-orange {
+    background: rgba(255, 107, 53, 0.1);
+    color: var(--accent2);
+    border: 1px solid rgba(255, 107, 53, 0.22);
+  }
+  &.badge-green {
+    background: rgba(0, 229, 160, 0.1);
+    color: var(--success);
+    border: 1px solid rgba(0, 229, 160, 0.22);
+  }
+  &.badge-red {
+    background: rgba(255, 77, 109, 0.1);
+    color: var(--danger);
+    border: 1px solid rgba(255, 77, 109, 0.22);
+  }
+  &.badge-yellow {
+    background: rgba(255, 176, 32, 0.1);
+    color: var(--warning);
+    border: 1px solid rgba(255, 176, 32, 0.22);
+  }
+}
+
+/* ── Card ─────────────────────────────────────────────────────────── */
+/*
+  PERFORMANCE: backdrop-filter:blur() removed.
+  High-opacity solid background gives the same depth perception
+  without forcing GPU to recalculate blur on every scroll frame.
+*/
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  /* Only animate the properties we actually change */
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+
+  &:hover {
+    border-color: var(--border-accent);
+    box-shadow: var(--shadow-accent);
+  }
+}
+
+/* ── Button ───────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  /* Explicit: only transform + background + box-shadow */
+  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  /* GPU layer for smooth transform */
+  will-change: transform;
+
+  &.btn-primary {
+    background: var(--accent);
+    color: var(--primary);
+    &:hover {
+      background: var(--accent-dim);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,212,255,0.25);
+    }
+  }
+  &.btn-outline {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--border-accent);
+    &:hover {
+      background: var(--accent-glow);
+      transform: translateY(-2px);
+    }
+  }
+  &.btn-danger {
+    background: var(--danger);
+    color: white;
+    &:hover { background: #e0354f; transform: translateY(-2px); }
+  }
+  &.btn-sm  { padding: 0.4rem 0.9rem; font-size: 0.8rem; }
+  &.btn-lg  { padding: 0.85rem 2rem; font-size: 1rem; }
+
+  /* Remove will-change after animation to free GPU memory */
+  &:not(:hover) { will-change: auto; }
+}
+
+/* ── Grid background (hero) ───────────────────────────────────────── */
+.grid-bg {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+    /* Isolate grid repaints */
+    contain: strict;
+  }
+}
+
+/* ── Animations ───────────────────────────────────────────────────── */
+/* Use transform+opacity only — compositor-only properties, zero layout cost */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translate3d(0, 20px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%       { transform: translate3d(0, -10px, 0); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* Use animation-fill-mode:both + animation-play-state to avoid flash */
+.animate-fade-up {
+  animation: fadeSlideUp 0.5s ease both;
+}
+
+/* ── Status dot ───────────────────────────────────────────────────── */
+.status-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  &.live  {
+    background: var(--success);
+    /* Compositor-only animation */
+    animation: pulse-dot 2s ease infinite;
+    will-change: transform, opacity;
+  }
+  &.warn  { background: var(--warning); }
+  &.error { background: var(--danger); }
+  &.idle  { background: var(--text-dim); }
+}
+
+/* ── Form Elements ────────────────────────────────────────────────── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 1rem;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+  }
+
+  &::placeholder { color: var(--text-dim); }
+  option { background: var(--surface); }
+}
+
+.form-textarea { resize: vertical; min-height: 100px; }
+
+/* ── Leaflet overrides ────────────────────────────────────────────── */
+.leaflet-container {
+  background: var(--primary) !important;
+  font-family: var(--font-body) !important;
+}
+/* PERFORMANCE: tile filter uses GPU, but only on tiles themselves (small cost) */
+.leaflet-tile {
+  filter: brightness(0.62) saturate(0.4) hue-rotate(200deg);
+  will-change: auto;
+}
+.leaflet-popup-content-wrapper {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border-accent) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow-accent) !important;
+}
+.leaflet-popup-tip { background: var(--surface) !important; }
+.leaflet-control-zoom a {
+  background: var(--surface) !important;
+  color: var(--accent) !important;
+  border-color: var(--border) !important;
+}
+
+/* MarkerCluster custom style */
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  background-color: rgba(0, 212, 255, 0.15) !important;
+}
+.marker-cluster-small div,
+.marker-cluster-medium div,
+.marker-cluster-large div {
+  background-color: rgba(0, 212, 255, 0.35) !important;
+  color: #fff !important;
+  font-family: var(--font-mono) !important;
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+}
+
+/* ── Page wrapper ─────────────────────────────────────────────────── */
+.page-wrapper {
+  padding-top: 72px;
+  min-height: 100vh;
+  /* Isolate page content from navbar compositing */
+  isolation: isolate;
+}
+
+/* ── Stat helpers ─────────────────────────────────────────────────── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 0.3rem;
+}
+
+/* ── Table ────────────────────────────────────────────────────────── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    /* Sticky header for large tables */
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  td {
+    padding: 0.85rem 1rem;
+    font-size: 0.88rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tr:hover td {
+    background: rgba(255,255,255,0.03);
+  }
+}
+
+/* ── View transition (Angular router) ────────────────────────────── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.2s;
+  animation-timing-function: ease-out;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .container { padding: 0 1rem; }
+  .section   { padding: 3rem 0; }
+  h1         { font-size: 2rem !important; }
+}
+
+/* ── Reduced motion — respect user preference ─────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .status-dot.live { animation: none; }
+}

@@ -1,0 +1,2 @@
+﻿email	password_hash
+dummy2@test.com	$2a$10$uWB8xbSSatfJTs7qEI17yeZYB7vo8/C3g2daH.FMivRcIRqi.TCeu

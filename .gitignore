@@ -1,0 +1,35 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.env
+
+# Backend
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/*.log
+backend/logs/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.class
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets — never commit
+*.env
+application-prod.yml
+application-local.yml
+
+# AI Service
+ai-service/.venv/
+ai-service/__pycache__/
+ai-service/.pytest_cache/
+ai-service/.env
+.venv
+
+ai-service/

@@ -1,0 +1,106 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/plain
+    min-response-size: 1024
+  http2:
+    enabled: true
+
+spring:
+  application:
+    name: urbanpulse-backend
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/urbanpulse?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8&rewriteBatchedStatements=true
+    username: urbanpulse_user
+    password: urbanpulse_pass
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: UrbanPulsePool
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      leak-detection-threshold: 60000
+      connection-test-query: SELECT 1
+
+  jpa:
+    hibernate:
+      # FIX: "update" in production can silently alter/drop columns on schema changes.
+      # "validate" only checks that the schema matches the entity mapping — it never
+      # modifies the DB. Use "create-drop" for local dev, "none" for production deploys
+      # where Flyway/Liquibase manages migrations.
+      ddl-auto: update   # keep "update" for dev convenience; override with "validate" in prod
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: false
+        use_sql_comments: false
+        jdbc:
+          batch_size: 25
+          fetch_size: 50
+        order_inserts: true
+        order_updates: true
+        cache:
+          use_second_level_cache: false
+        connection:
+          charSet: UTF-8
+
+  sql:
+    init:
+      # BUG FIX: 'always' runs data.sql on every restart.
+      # 'embedded' would skip on MySQL but 'never' is explicit and safe.
+      # For first-time setup, temporarily switch to 'always', then back to 'never'.
+      # Seed users/departments are INSERT IGNORE so duplicates are safe either way.
+      mode: always
+      encoding: UTF-8
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: non_null
+    time-zone: UTC
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    com.urbanpulse: DEBUG
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+urbanpulse:
+  jwt:
+    secret: urbanpulse-super-secret-jwt-key-2026-must-be-at-least-256-bits-long-for-security
+    expiration-ms: 86400000   # 24 hours
+  cors:
+    allowed-origins: "http://localhost:4200,http://localhost:3000"
+
+# ── AI Service ────────────────────────────────────────────────────────────────
+ai:
+  service:
+    url: http://localhost:8000/api
+    secret: change_this_in_production_please
+    monitor-interval-ms: 900000   # 15 min; override in prod via env var
+  monitor:
+    interval-ms: 900000   # 15 minutes — override in tests or prod

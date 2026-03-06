@@ -1,0 +1,163 @@
+<div class="report-page">
+  <div class="container">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <span class="badge badge-orange">
+        <i class="fas fa-circle-plus"></i> Report Incident
+      </span>
+      <h1>Submit a City Incident</h1>
+      <p>Your report is sent directly to the UrbanPulse AI pipeline. A Classifier Agent will analyse and prioritize it within seconds.</p>
+    </div>
+
+    @if (!submitted()) {
+      <div class="report-layout">
+        <!-- Form -->
+        <div class="form-card card">
+          <div class="form-section-title">
+            <i class="fas fa-file-pen"></i> Incident Details
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Incident Title *</label>
+            <input class="form-input" [(ngModel)]="form.title"
+              placeholder="e.g., Large pothole near metro station" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Category *</label>
+              <select class="form-select" [(ngModel)]="form.category">
+                @for (cat of categories; track cat[0]) {
+                  <option [value]="cat[0]">{{ cat[1] }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">District *</label>
+              <select class="form-select" [(ngModel)]="form.district" (ngModelChange)="onDistrictChange($event)">
+                @for (d of districts; track d) {
+                  <option [value]="d">{{ d }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description *</label>
+            <textarea class="form-textarea" [(ngModel)]="form.description"
+              placeholder="Describe the incident in detail — what you observed, when it occurred, and any safety concerns."
+              rows="4"></textarea>
+          </div>
+
+          <!-- Priority Slider -->
+          <div class="form-group">
+            <label class="form-label">
+              Perceived Severity
+              <span class="priority-pill" [style.background]="getPriorityColor(form.priority) + '22'"
+                    [style.color]="getPriorityColor(form.priority)"
+                    [style.borderColor]="getPriorityColor(form.priority) + '55'">
+                P{{ form.priority }} — {{ PRIORITY_LABELS[form.priority] }}
+              </span>
+            </label>
+            <input type="range" min="1" max="5" [(ngModel)]="form.priority"
+              class="priority-slider" />
+            <div class="slider-labels">
+              <span>Minimal</span><span>Low</span><span>Medium</span><span>High</span><span>Critical</span>
+            </div>
+          </div>
+
+          <hr class="divider">
+          <div class="form-section-title">
+            <i class="fas fa-user"></i> Your Information
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Full Name *</label>
+              <input class="form-input" [(ngModel)]="form.reporterName" placeholder="Ahmet Yılmaz" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email (optional)</label>
+              <input class="form-input" [(ngModel)]="form.reporterEmail" type="email" placeholder="ahmet@example.com" />
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-lg submit-btn"
+            (click)="submit()"
+            [disabled]="submitting() || !form.title || !form.description || !form.reporterName">
+            @if (submitting()) {
+              <i class="fas fa-spinner fa-spin"></i> Submitting...
+            } @else {
+              <i class="fas fa-paper-plane"></i> Submit Report
+            }
+          </button>
+        </div>
+
+        <!-- Info Sidebar -->
+        <div class="sidebar">
+          <div class="card info-card">
+            <div class="info-icon"><i class="fas fa-robot"></i></div>
+            <h3>What happens next?</h3>
+            <div class="step-list">
+              <div class="step-item">
+                <div class="step-dot cyan"></div>
+                <div>
+                  <strong>Classifier Agent</strong>
+                  <p>Analyses your report text and assigns a category and priority score (P1–P5).</p>
+                </div>
+              </div>
+              <div class="step-item">
+                <div class="step-dot orange"></div>
+                <div>
+                  <strong>Planner Agent</strong>
+                  <p>Routes the incident to the correct city department with an SLA deadline.</p>
+                </div>
+              </div>
+              <div class="step-item">
+                <div class="step-dot green"></div>
+                <div>
+                  <strong>Monitor Agent</strong>
+                  <p>Tracks resolution progress and escalates if the deadline is missed.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card stats-mini">
+            <div class="stats-mini-row">
+              <span class="stats-mini-label">Avg. processing time</span>
+              <span class="stats-mini-value accent">~1.2s</span>
+            </div>
+            <div class="stats-mini-row">
+              <span class="stats-mini-label">AI classification accuracy</span>
+              <span class="stats-mini-value green">96.4%</span>
+            </div>
+            <div class="stats-mini-row">
+              <span class="stats-mini-label">Incidents today</span>
+              <span class="stats-mini-value">8</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    } @else {
+      <!-- Success State -->
+      <div class="success-card card">
+        <div class="success-icon"><i class="fas fa-circle-check"></i></div>
+        <h2>Report Submitted Successfully</h2>
+        <p>Your incident has been logged with ID <code>{{ submittedId() }}</code>.</p>
+        <p class="success-sub">The AI pipeline has been triggered and your report will be classified within seconds. You will receive updates if you provided an email address.</p>
+        <div class="success-actions">
+          <a routerLink="/dashboard" class="btn btn-primary">
+            <i class="fas fa-chart-line"></i> View Dashboard
+          </a>
+          <button class="btn btn-outline" (click)="reset()">
+            <i class="fas fa-plus"></i> Submit Another
+          </button>
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

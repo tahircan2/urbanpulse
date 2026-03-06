@@ -1,0 +1,225 @@
+<!-- ── HERO ──────────────────────────────────────────────────────────────── -->
+<section class="hero grid-bg">
+  <div class="hero-bg-elements" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <div class="container hero-content">
+    <div class="hero-badge">
+      <span class="status-dot live"></span>
+      <span>Live City Monitoring — Istanbul</span>
+    </div>
+
+    <h1 class="hero-title">
+      The City's<br>
+      <span class="gradient-text">Intelligent Pulse</span>
+    </h1>
+
+    <p class="hero-description">
+      UrbanPulse aggregates citizen-reported incidents across Istanbul in real time,
+      using a multi-agent AI pipeline to classify, prioritize, and route every event
+      to the right department — automatically.
+    </p>
+
+    <div class="hero-actions">
+      <a routerLink="/report" class="btn btn-primary btn-lg">
+        <i class="fas fa-circle-plus"></i>
+        Report an Incident
+      </a>
+      <a routerLink="/map" class="btn btn-outline btn-lg">
+        <i class="fas fa-map"></i>
+        View Live Map
+      </a>
+    </div>
+
+    <!-- Mini stats bar -->
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="hero-stat-value accent">{{ stats().inProgress }}</span>
+        <span class="hero-stat-label">Active</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-value warn">{{ stats().pending }}</span>
+        <span class="hero-stat-label">Pending</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-value success">{{ stats().resolved }}</span>
+        <span class="hero-stat-label">Resolved</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-value danger">{{ stats().critical }}</span>
+        <span class="hero-stat-label">Critical</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS CARDS — defer until viewport ──────────────────────────────── -->
+@defer (on viewport; prefetch on idle) {
+  <section class="section-sm">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon cyan"><i class="fas fa-triangle-exclamation"></i></div>
+          <div>
+            <div class="stat-value">{{ stats().total }}</div>
+            <div class="stat-label">Total Incidents</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange"><i class="fas fa-spinner"></i></div>
+          <div>
+            <div class="stat-value" style="color:var(--accent2)">{{ stats().inProgress }}</div>
+            <div class="stat-label">Being Resolved</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="fas fa-circle-check"></i></div>
+          <div>
+            <div class="stat-value" style="color:var(--success)">{{ stats().resolved }}</div>
+            <div class="stat-label">Resolved</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple"><i class="fas fa-robot"></i></div>
+          <div>
+            <div class="stat-value" style="color:#A78BFA">{{ stats().aiProcessed }}</div>
+            <div class="stat-label">AI-Processed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+} @placeholder (minimum 100ms) {
+  <div class="stats-placeholder"></div>
+}
+
+<!-- ── RECENT INCIDENTS ──────────────────────────────────────────────────── -->
+@defer (on viewport; prefetch on idle) {
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <span class="badge badge-cyan" style="margin-bottom:0.75rem">
+            <i class="fas fa-clock-rotate-left"></i> Recent Activity
+          </span>
+          <h2 class="section-title">Latest Incidents</h2>
+        </div>
+        <a routerLink="/dashboard" class="btn btn-outline">
+          View All <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="incidents-grid">
+        @for (incident of recentIncidents(); track incident.id) {
+          <div class="incident-card card">
+            <div class="incident-card-header">
+              <div class="incident-icon">
+                <i class="fas {{ CATEGORY_ICONS[incident.category] }}"></i>
+              </div>
+              <div class="incident-meta">
+                <span class="badge {{ getStatusClass(incident.status) }}">
+                  {{ STATUS_LABELS[incident.status] }}
+                </span>
+                <span class="incident-id">{{ incident.id }}</span>
+              </div>
+            </div>
+
+            <h3 class="incident-title">{{ incident.title }}</h3>
+            <p class="incident-desc">{{ incident.description }}</p>
+
+            <div class="incident-footer">
+              <div class="incident-detail">
+                <i class="fas fa-location-dot"></i>
+                <span>{{ incident.district }}</span>
+              </div>
+              <div class="incident-detail">
+                <span class="badge {{ getPriorityClass(incident.priority) }}">
+                  P{{ incident.priority }} {{ getPriorityLabel(incident.priority) }}
+                </span>
+              </div>
+            </div>
+
+            @if (incident.agentProcessed) {
+              <div class="ai-processed">
+                <i class="fas fa-microchip"></i>
+                <span>AI-classified &amp; routed</span>
+              </div>
+            } @else {
+              <div class="ai-processing">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Agent processing...</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+} @placeholder (minimum 100ms) {
+  <div class="incidents-placeholder"></div>
+}
+
+<!-- ── HOW IT WORKS — defer until viewport ──────────────────────────────── -->
+@defer (on viewport; prefetch on idle) {
+  <section class="section how-section">
+    <div class="container">
+      <div class="section-header centered">
+        <span class="badge badge-orange" style="margin-bottom:0.75rem">
+          <i class="fas fa-diagram-project"></i> AI Pipeline
+        </span>
+        <h2 class="section-title">How UrbanPulse Works</h2>
+        <p class="section-subtitle">
+          Three specialized AI agents collaborate behind the scenes to ensure
+          every citizen report is handled with speed, accuracy, and fairness.
+        </p>
+      </div>
+
+      <div class="pipeline">
+        <div class="pipeline-step">
+          <div class="step-number">01</div>
+          <div class="step-icon cyan"><i class="fas fa-file-pen"></i></div>
+          <h3>Citizen Reports</h3>
+          <p>Any resident submits an incident report with location, description, and optional photo via the web form.</p>
+        </div>
+        <div class="pipeline-arrow"><i class="fas fa-arrow-right"></i></div>
+
+        <div class="pipeline-step">
+          <div class="step-number">02</div>
+          <div class="step-icon orange"><i class="fas fa-brain"></i></div>
+          <h3>Classifier Agent</h3>
+          <p>Analyses the text, location context, and historical data to assign a category and a 1–5 priority score.</p>
+        </div>
+        <div class="pipeline-arrow"><i class="fas fa-arrow-right"></i></div>
+
+        <div class="pipeline-step">
+          <div class="step-number">03</div>
+          <div class="step-icon purple"><i class="fas fa-network-wired"></i></div>
+          <h3>Planner Agent</h3>
+          <p>Considers department workloads and active incidents in the district to route the task optimally.</p>
+        </div>
+        <div class="pipeline-arrow"><i class="fas fa-arrow-right"></i></div>
+
+        <div class="pipeline-step">
+          <div class="step-number">04</div>
+          <div class="step-icon green"><i class="fas fa-gauge-high"></i></div>
+          <h3>Monitor Agent</h3>
+          <p>Polls open incidents every 15 minutes, detects SLA breaches, and escalates or closes cases automatically.</p>
+        </div>
+      </div>
+
+      <div class="pipeline-cta">
+        <a routerLink="/about" class="btn btn-outline">
+          <i class="fas fa-circle-info"></i>
+          Learn More About the AI Architecture
+        </a>
+      </div>
+    </div>
+  </section>
+} @placeholder (minimum 100ms) {
+  <div class="pipeline-placeholder"></div>
+}

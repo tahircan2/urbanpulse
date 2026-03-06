@@ -1,0 +1,1035 @@
+﻿
+> urbanpulse@2.0.0 build
+> ng build --configuration production
+
+[33mÔØ»[39m Building...
+[32mÔ£ö[39m Building...
+Application bundle generation failed. [3.119 seconds]
+
+node.exe : [1m[33m[3
+3mÔû▓ [43;33m[[43;30m
+WARNING[43;33m][0m [
+1mTS-998113: RouterLink
+ is not used within the
+ template of LoginCompo
+nent[0m [1m[35m[plug
+in angular-compiler][0
+m
+At line:1 char:1
++ & "C:\Program Files\n
+odejs/node.exe" "C:\Pro
+gram Files\nodejs/node_
+mo ...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: ([1m[33m[33   
+ mÔ...r-compiler][    
+0m:String) [], Rem    o
+teException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+
+    src/app/components/
+auth/login.component.ts
+:10:25:
+[37m      10 Ôöé   imp
+orts: [FormsModule, [3
+2mRouterLink[37m],
+         ÔòÁ           
+               [32m~~~
+~~~~~~~[0m
+
+
+[33mÔû▓ [43;33m[[43;
+30mWARNING[43;33m][0m
+ [1mNG8107: The left s
+ide of this optional ch
+ain operation does not 
+include 'null' or 'unde
+fined' in its type, the
+refore the '?.' operato
+r can be replaced with 
+the '.' operator.[0m 
+[1m[35m[plugin angular
+-compiler][0m
+
+    src/app/components/
+dashboard/dashboard.com
+ponent.html:175:59:
+[37m      175 Ôöé ...<
+div class="tool-chip" [
+style.--tc]="t.meta?.[
+32mcolor[37m || '#8896
+A9'">
+          ÔòÁ          
+                       
+                [32m~~
+~~~[0m
+
+  Error occurs in the t
+emplate of component Da
+shboardComponent.
+
+    src/app/components/
+dashboard/dashboard.com
+ponent.ts:25:15:
+[37m      25 Ôöé   tem
+plateUrl: [32m'./dashb
+oard.component.html'[3
+7m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~[0m
+
+
+[33mÔû▓ [43;33m[[43;
+30mWARNING[43;33m][0m
+ [1mNG8107: The left s
+ide of this optional ch
+ain operation does not 
+include 'null' or 'unde
+fined' in its type, the
+refore the '?.' operato
+r can be replaced with 
+the '.' operator.[0m 
+[1m[35m[plugin angular
+-compiler][0m
+
+    src/app/components/
+dashboard/dashboard.com
+ponent.html:176:41:
+[37m      176 Ôöé ... 
+           <i class="fa
+s {{ t.meta?.[32micon
+[37m || 'fa-wrench' }}"
+></i>
+          ÔòÁ          
+                       
+        [32m~~~~[0m
+
+  Error occurs in the t
+emplate of component Da
+shboardComponent.
+
+    src/app/components/
+dashboard/dashboard.com
+ponent.ts:25:15:
+[37m      25 Ôöé   tem
+plateUrl: [32m'./dashb
+oard.component.html'[3
+7m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~[0m
+
+
+[33mÔû▓ [43;33m[[43;
+30mWARNING[43;33m][0m
+ [1mNG8107: The left s
+ide of this optional ch
+ain operation does not 
+include 'null' or 'unde
+fined' in its type, the
+refore the '?.' operato
+r can be replaced with 
+the '.' operator.[0m 
+[1m[35m[plugin angular
+-compiler][0m
+
+    src/app/components/
+dashboard/dashboard.com
+ponent.html:177:33:
+[37m      177 Ôöé     
+            <span>{{ t.
+meta?.[32mlabel[37m |
+| t.name }}</span>
+          ÔòÁ          
+                       
+ [32m~~~~~[0m
+
+  Error occurs in the t
+emplate of component Da
+shboardComponent.
+
+    src/app/components/
+dashboard/dashboard.com
+ponent.ts:25:15:
+[37m      25 Ôöé   tem
+plateUrl: [32m'./dashb
+oard.component.html'[3
+7m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~[0m
+
+
+[33mÔû▓ [43;33m[[43;
+30mWARNING[43;33m][0m
+ [1mNG8107: The left s
+ide of this optional ch
+ain operation does not 
+include 'null' or 'unde
+fined' in its type, the
+refore the '?.' operato
+r can be replaced with 
+the '.' operator.[0m 
+[1m[35m[plugin angular
+-compiler][0m
+
+    src/app/components/
+dashboard/dashboard.com
+ponent.html:219:61:
+[37m      219 Ôöé ...p
+an class="time-cell">{{
+ timeAgo(pi.logs[0]?.[
+32mtimestamp[37m) }}</
+span>
+          ÔòÁ          
+                       
+                [32m~~
+~~~~~~~[0m
+
+  Error occurs in the t
+emplate of component Da
+shboardComponent.
+
+    src/app/components/
+dashboard/dashboard.com
+ponent.ts:25:15:
+[37m      25 Ôöé   tem
+plateUrl: [32m'./dashb
+oard.component.html'[3
+7m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~[0m
+
+
+[33mÔû▓ [43;33m[[43;
+30mWARNING[43;33m][0m
+ [1mTS-998113: All imp
+orts are unused[0m [1
+m[35m[plugin angular-c
+ompiler][0m
+
+    src/app/components/
+map/map.component.ts:27
+:2:
+[37m      27 Ôöé   [3
+2mimports[37m: [Router
+Link],
+         ÔòÁ   [32m~~~
+~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31
+m[[41;97mERROR[41;31m
+][0m [1mNG5002: Incom
+plete block "2026". If 
+you meant to write the 
+@ character, you should
+ use the "&#64;" HTML e
+ntity instead.[0m [1m
+[35m[plugin angular-co
+mpiler][0m
+
+    src/app/components/
+auth/login.component.ht
+ml:35:65:
+[37m      35 Ôöé ...cl
+ass="badge badge-cyan">
+Demo logins (password: 
+Admin[32m@2026[37m)</
+span>
+         ÔòÁ           
+                       
+                       
+[32m~~~~~[0m
+
+  Error occurs in the t
+emplate of component Lo
+ginComponent.
+
+    src/app/components/
+auth/login.component.ts
+:11:15:
+[37m      11 Ôöé   tem
+plateUrl: [32m'./login
+.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG5002: Incomplete blo
+ck "urbanpulse". If you
+ meant to write the @ c
+haracter, you should us
+e the "&#64;" HTML enti
+ty instead.[0m [1m[3
+5m[plugin angular-compi
+ler][0m
+
+    src/app/components/
+auth/login.component.ht
+ml:36:17:
+[37m      36 Ôöé      
+ <code>admin[32m@urban
+pulse[37m.com</code>
+         ÔòÁ           
+       [32m~~~~~~~~~~~
+[0m
+
+  Error occurs in the t
+emplate of component Lo
+ginComponent.
+
+    src/app/components/
+auth/login.component.ts
+:11:15:
+[37m      11 Ôöé   tem
+plateUrl: [32m'./login
+.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG5002: Incomplete blo
+ck "urbanpulse". If you
+ meant to write the @ c
+haracter, you should us
+e the "&#64;" HTML enti
+ty instead.[0m [1m[3
+5m[plugin angular-compi
+ler][0m
+
+    src/app/components/
+auth/login.component.ht
+ml:37:17:
+[37m      37 Ôöé      
+ <code>staff[32m@urban
+pulse[37m.com</code>
+         ÔòÁ           
+       [32m~~~~~~~~~~~
+[0m
+
+  Error occurs in the t
+emplate of component Lo
+ginComponent.
+
+    src/app/components/
+auth/login.component.ts
+:11:15:
+[37m      11 Ôöé   tem
+plateUrl: [32m'./login
+.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG5002: Incomplete blo
+ck "example". If you me
+ant to write the @ char
+acter, you should use t
+he "&#64;" HTML entity 
+instead.[0m [1m[35m[
+plugin angular-compiler
+][0m
+
+    src/app/components/
+auth/login.component.ht
+ml:38:17:
+[37m      38 Ôöé      
+ <code>ahmet[32m@examp
+le[37m.com</code>
+         ÔòÁ           
+       [32m~~~~~~~~[0
+m
+
+  Error occurs in the t
+emplate of component Lo
+ginComponent.
+
+    src/app/components/
+auth/login.component.ts
+:11:15:
+[37m      11 Ôöé   tem
+plateUrl: [32m'./login
+.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG5: Argument of type 
+'string | undefined' is
+ not assignable to para
+meter of type 'string'.
+  Type 'undefined' is n
+ot assignable to type '
+string'.[0m [1m[35m[
+plugin angular-compiler
+][0m
+
+    src/app/components/
+dashboard/dashboard.com
+ponent.html:219:49:
+[37m      219 Ôöé ...p
+an class="time-cell">{{
+ timeAgo([32mpi.logs[0
+]?.timestamp[37m) }}</
+span>
+          ÔòÁ          
+                       
+    [32m~~~~~~~~~~~~~~
+~~~~~~~[0m
+
+  Error occurs in the t
+emplate of component Da
+shboardComponent.
+
+    src/app/components/
+dashboard/dashboard.com
+ponent.ts:25:15:
+[37m      25 Ôöé   tem
+plateUrl: [32m'./dashb
+oard.component.html'[3
+7m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG5002: "viewport" tri
+gger with no parameters
+ can only be placed on 
+an @defer that has a @p
+laceholder block[0m [
+1m[35m[plugin angular-
+compiler][0m
+
+    src/app/components/
+home/home.component.htm
+l:168:11:
+[37m      168 Ôöé @def
+er (on [32mviewport[3
+7m; prefetch on idle) {
+          ÔòÁ          
+  [32m~~~~~~~~[0m
+
+  Error occurs in the t
+emplate of component Ho
+meComponent.
+
+    src/app/components/
+home/home.component.ts:
+19:15:
+[37m      19 Ôöé   tem
+plateUrl: [32m'./home.
+component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mTS2339: Property 'getS
+tats' does not exist on
+ type 'IncidentService'
+.[0m [1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/components/
+home/home.component.ts:
+57:48:
+[37m      57 Ôöé      
+       this.stats.set(t
+his.incidentService.[3
+2mgetStats[37m());
+         ÔòÁ           
+                       
+               [32m~~~
+~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG9: Property 'PRIORIT
+Y_CLASSES' does not exi
+st on type 'MapComponen
+t'.[0m [1m[35m[plugi
+n angular-compiler][0m
+
+    src/app/components/
+map/map.component.html:
+47:34:
+[37m      47 Ôöé ...  
+<span class="badge {{ 
+[32mPRIORITY_CLASSES[3
+7m[selected()!.priority
+] ...
+         ÔòÁ           
+                 [32m~
+~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the t
+emplate of component Ma
+pComponent.
+
+    src/app/components/
+map/map.component.ts:28
+:15:
+[37m      28 Ôöé   tem
+plateUrl: [32m'./map.c
+omponent.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG9: Property 'assigne
+dTo' does not exist on 
+type 'Incident'.[0m [
+1m[35m[plugin angular-
+compiler][0m
+
+    src/app/components/
+map/map.component.html:
+63:29:
+[37m      63 Ôöé      
+       @if (selected()!
+.[32massignedTo[37m) 
+{
+         ÔòÁ           
+                   [32
+m~~~~~~~~~~[0m
+
+  Error occurs in the t
+emplate of component Ma
+pComponent.
+
+    src/app/components/
+map/map.component.ts:28
+:15:
+[37m      28 Ôöé   tem
+plateUrl: [32m'./map.c
+omponent.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG9: Property 'assigne
+dTo' does not exist on 
+type 'Incident'.[0m [
+1m[35m[plugin angular-
+compiler][0m
+
+    src/app/components/
+map/map.component.html:
+66:37:
+[37m      66 Ôöé      
+           <span>{{ sel
+ected()!.[32massignedT
+o[37m }}</span>
+         ÔòÁ           
+                       
+    [32m~~~~~~~~~~[0m
+
+  Error occurs in the t
+emplate of component Ma
+pComponent.
+
+    src/app/components/
+map/map.component.ts:28
+:15:
+[37m      28 Ôöé   tem
+plateUrl: [32m'./map.c
+omponent.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG9: Property 'PRIORIT
+Y_CLASSES' does not exi
+st on type 'MapComponen
+t'.[0m [1m[35m[plugi
+n angular-compiler][0m
+
+    src/app/components/
+map/map.component.html:
+100:34:
+[37m      100 Ôöé ... 
+<span class="badge {{ 
+[32mPRIORITY_CLASSES[3
+7m[inc.priority] }}" st
+yl...
+          ÔòÁ          
+                 [32m~
+~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the t
+emplate of component Ma
+pComponent.
+
+    src/app/components/
+map/map.component.ts:28
+:15:
+[37m      28 Ôöé   tem
+plateUrl: [32m'./map.c
+omponent.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG1: Property 'auth' i
+s private and only acce
+ssible within class 'Na
+vbarComponent'.[0m [1
+m[35m[plugin angular-c
+ompiler][0m
+
+    src/app/components/
+navbar/navbar.component
+.html:13:28:
+[37m      13 Ôöé      
+   @if (!link.staff || 
+[32mauth[37m.isStaffO
+rAdmin()) {
+         ÔòÁ           
+                  [32m
+~~~~[0m
+
+  Error occurs in the t
+emplate of component Na
+vbarComponent.
+
+    src/app/components/
+navbar/navbar.component
+.ts:18:15:
+[37m      18 Ôöé   tem
+plateUrl: [32m'./navba
+r.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG1: Property 'auth' i
+s private and only acce
+ssible within class 'Na
+vbarComponent'.[0m [1
+m[35m[plugin angular-c
+ompiler][0m
+
+    src/app/components/
+navbar/navbar.component
+.html:28:11:
+[37m      28 Ôöé      
+ @if ([32mauth[37m.is
+LoggedIn()) {
+         ÔòÁ           
+ [32m~~~~[0m
+
+  Error occurs in the t
+emplate of component Na
+vbarComponent.
+
+    src/app/components/
+navbar/navbar.component
+.ts:18:15:
+[37m      18 Ôöé   tem
+plateUrl: [32m'./navba
+r.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG1: Property 'auth' i
+s private and only acce
+ssible within class 'Na
+vbarComponent'.[0m [1
+m[35m[plugin angular-c
+ompiler][0m
+
+    src/app/components/
+navbar/navbar.component
+.html:31:19:
+[37m      31 Ôöé      
+     <span>{{ [32mauth
+[37m.currentUser()?.na
+me }}</span>
+         ÔòÁ           
+         [32m~~~~[0m
+
+  Error occurs in the t
+emplate of component Na
+vbarComponent.
+
+    src/app/components/
+navbar/navbar.component
+.ts:18:15:
+[37m      18 Ôöé   tem
+plateUrl: [32m'./navba
+r.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG1: Property 'auth' i
+s private and only acce
+ssible within class 'Na
+vbarComponent'.[0m [1
+m[35m[plugin angular-c
+ompiler][0m
+
+    src/app/components/
+navbar/navbar.component
+.html:52:28:
+[37m      52 Ôöé      
+   @if (!link.staff || 
+[32mauth[37m.isStaffO
+rAdmin()) {
+         ÔòÁ           
+                  [32m
+~~~~[0m
+
+  Error occurs in the t
+emplate of component Na
+vbarComponent.
+
+    src/app/components/
+navbar/navbar.component
+.ts:18:15:
+[37m      18 Ôöé   tem
+plateUrl: [32m'./navba
+r.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG1: Property 'auth' i
+s private and only acce
+ssible within class 'Na
+vbarComponent'.[0m [1
+m[35m[plugin angular-c
+ompiler][0m
+
+    src/app/components/
+navbar/navbar.component
+.html:61:11:
+[37m      61 Ôöé      
+ @if ([32mauth[37m.is
+LoggedIn()) {
+         ÔòÁ           
+ [32m~~~~[0m
+
+  Error occurs in the t
+emplate of component Na
+vbarComponent.
+
+    src/app/components/
+navbar/navbar.component
+.ts:18:15:
+[37m      18 Ôöé   tem
+plateUrl: [32m'./navba
+r.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG1: Property 'auth' i
+s private and only acce
+ssible within class 'Na
+vbarComponent'.[0m [1
+m[35m[plugin angular-c
+ompiler][0m
+
+    src/app/components/
+navbar/navbar.component
+.html:63:69:
+[37m      63 Ôöé ...w-
+right-from-bracket"></i
+> Logout ({{ [32mauth
+[37m.currentUser()?.nam
+e }})
+         ÔòÁ           
+                       
+        [32m~~~~[0m
+
+  Error occurs in the t
+emplate of component Na
+vbarComponent.
+
+    src/app/components/
+navbar/navbar.component
+.ts:18:15:
+[37m      18 Ôöé   tem
+plateUrl: [32m'./navba
+r.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG1: Property 'getPrio
+rityLabel' does not exi
+st on type 'ReportCompo
+nent'. Did you mean 'PR
+IORITY_LABELS'?[0m [1
+m[35m[plugin angular-c
+ompiler][0m
+
+    src/app/components/
+report/report.component
+.html:60:42:
+[37m      60 Ôöé ...  
+  P{{ form.priority }} 
+ÔÇö {[32m{ getPriority
+Lab[37mel(form.priorit
+y) }}
+         ÔòÁ           
+                     [
+32m~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the t
+emplate of component Re
+portComponent.
+
+    src/app/components/
+report/report.component
+.ts:15:15:
+[37m      15 Ôöé   tem
+plateUrl: [32m'./repor
+t.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG9: Property 'reporte
+rName' does not exist o
+n type 'IncidentSubmiss
+ion'.[0m [1m[35m[plu
+gin angular-compiler][
+0m
+
+    src/app/components/
+report/report.component
+.html:78:58:
+[37m      78 Ôöé ...-i
+nput" [(ngModel)]="form
+.[32mreporterName[37m
+" placeholder="Ahmet Y─
+▒l...
+         ÔòÁ           
+                   [32
+m~~~~~~~~~~~~[0m
+
+  Error occurs in the t
+emplate of component Re
+portComponent.
+
+    src/app/components/
+report/report.component
+.ts:15:15:
+[37m      15 Ôöé   tem
+plateUrl: [32m'./repor
+t.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG9: Property 'reporte
+rName' does not exist o
+n type 'IncidentSubmiss
+ion'.[0m [1m[35m[plu
+gin angular-compiler][
+0m
+
+    src/app/components/
+report/report.component
+.html:78:58:
+[37m      78 Ôöé ...-i
+nput" [(ngModel)]="form
+.[32mreporterName[37m
+" placeholder="Ahmet Y─
+▒l...
+         ÔòÁ           
+                   [32
+m~~~~~~~~~~~~[0m
+
+  Error occurs in the t
+emplate of component Re
+portComponent.
+
+    src/app/components/
+report/report.component
+.ts:15:15:
+[37m      15 Ôöé   tem
+plateUrl: [32m'./repor
+t.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG9: Property 'reporte
+rEmail' does not exist 
+on type 'IncidentSubmis
+sion'.[0m [1m[35m[pl
+ugin angular-compiler]
+[0m
+
+    src/app/components/
+report/report.component
+.html:82:58:
+[37m      82 Ôöé ...in
+put" [(ngModel)]="form.
+[32mreporterEmail[37m
+" type="email" placehol
+de...
+         ÔòÁ           
+                  [32m
+~~~~~~~~~~~~~[0m
+
+  Error occurs in the t
+emplate of component Re
+portComponent.
+
+    src/app/components/
+report/report.component
+.ts:15:15:
+[37m      15 Ôöé   tem
+plateUrl: [32m'./repor
+t.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG9: Property 'reporte
+rEmail' does not exist 
+on type 'IncidentSubmis
+sion'.[0m [1m[35m[pl
+ugin angular-compiler]
+[0m
+
+    src/app/components/
+report/report.component
+.html:82:58:
+[37m      82 Ôöé ...in
+put" [(ngModel)]="form.
+[32mreporterEmail[37m
+" type="email" placehol
+de...
+         ÔòÁ           
+                  [32m
+~~~~~~~~~~~~~[0m
+
+  Error occurs in the t
+emplate of component Re
+portComponent.
+
+    src/app/components/
+report/report.component
+.ts:15:15:
+[37m      15 Ôöé   tem
+plateUrl: [32m'./repor
+t.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97
+mERROR[41;31m][0m [1
+mNG9: Property 'reporte
+rName' does not exist o
+n type 'IncidentSubmiss
+ion'.[0m [1m[35m[plu
+gin angular-compiler][
+0m
+
+    src/app/components/
+report/report.component
+.html:88:82:
+[37m      88 Ôöé ...ti
+ng() || !form.title || 
+!form.description || !f
+orm.[32mreporterName[
+37m">
+         ÔòÁ           
+                       
+                      
+[32m~~~~~~~~~~~~[0m
+
+  Error occurs in the t
+emplate of component Re
+portComponent.
+
+    src/app/components/
+report/report.component
+.ts:15:15:
+[37m      15 Ôöé   tem
+plateUrl: [32m'./repor
+t.component.html'[37m,
+         ÔòÁ           
+     [32m~~~~~~~~~~~~~
+~~~~~~~~~~~~[0m
+
+[39m[22m

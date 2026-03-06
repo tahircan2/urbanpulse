@@ -1,0 +1,75 @@
+<nav class="navbar" [class.scrolled]="scrolled()">
+  <div class="nav-inner">
+    <a routerLink="/" class="nav-logo">
+      <div class="logo-icon"><i class="fas fa-city"></i></div>
+      <div class="logo-text">
+        <span class="logo-main">Urban<span class="accent">Pulse</span></span>
+        <span class="logo-sub">Smart City Platform</span>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      @for (link of navLinks; track link.path) {
+        @if (!link.staff || auth.isStaffOrAdmin()) {
+          <li>
+            <a [routerLink]="link.path" routerLinkActive="active"
+               [routerLinkActiveOptions]="{ exact: link.path === '/' }" class="nav-link">
+              <i class="fas {{ link.icon }}"></i>{{ link.label }}
+            </a>
+          </li>
+        }
+      }
+    </ul>
+
+    <div class="nav-actions">
+      <div class="live-indicator">
+        <span class="status-dot live"></span><span>Live</span>
+      </div>
+      @if (auth.isLoggedIn()) {
+        <div class="user-chip">
+          <i class="fas fa-circle-user"></i>
+          <span>{{ auth.currentUser()?.name }}</span>
+          <button class="logout-btn" (click)="logout()" title="Logout">
+            <i class="fas fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      } @else {
+        <a routerLink="/login"    class="btn btn-outline btn-sm">Login</a>
+        <a routerLink="/register" class="btn btn-primary btn-sm">
+          <i class="fas fa-user-plus"></i> Register
+        </a>
+      }
+    </div>
+
+    <button class="mobile-toggle" (click)="toggleMobile()">
+      <i class="fas" [class.fa-bars]="!mobileOpen()" [class.fa-xmark]="mobileOpen()"></i>
+    </button>
+  </div>
+
+  @if (mobileOpen()) {
+    <div class="mobile-menu">
+      @for (link of navLinks; track link.path) {
+        @if (!link.staff || auth.isStaffOrAdmin()) {
+          <a [routerLink]="link.path" routerLinkActive="active"
+             [routerLinkActiveOptions]="{ exact: link.path === '/' }"
+             class="mobile-link" (click)="toggleMobile()">
+            <i class="fas {{ link.icon }}"></i>{{ link.label }}
+          </a>
+        }
+      }
+      <div class="mobile-divider"></div>
+      @if (auth.isLoggedIn()) {
+        <button class="mobile-link logout-mobile" (click)="logout()">
+          <i class="fas fa-arrow-right-from-bracket"></i> Logout ({{ auth.currentUser()?.name }})
+        </button>
+      } @else {
+        <a routerLink="/login"    class="mobile-link" (click)="toggleMobile()">
+          <i class="fas fa-right-to-bracket"></i> Login
+        </a>
+        <a routerLink="/register" class="mobile-link" (click)="toggleMobile()">
+          <i class="fas fa-user-plus"></i> Register
+        </a>
+      }
+    </div>
+  }
+</nav>

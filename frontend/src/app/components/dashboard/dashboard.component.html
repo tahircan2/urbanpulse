@@ -1,0 +1,487 @@
+<div class="dashboard-page">
+  <div class="container">
+
+    <!-- ── Header ── -->
+    <div class="dash-header">
+      <div class="dash-header-left">
+        <span class="badge badge-cyan"><i class="fas fa-brain"></i> AI-Powered Dashboard</span>
+        <h1>UrbanPulse Command Center</h1>
+        <p>Real-time incident management with multi-agent AI pipeline.</p>
+      </div>
+      <div class="dash-header-actions">
+        <button class="btn btn-ghost" (click)="loadData()">
+          <i class="fas fa-rotate-right"></i> Refresh
+        </button>
+        <a routerLink="/report" class="btn btn-primary">
+          <i class="fas fa-plus"></i> New Report
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Toast messages ── -->
+    @if (undoIncidentId() !== null) {
+      <div class="toast toast-warning" style="display: flex; justify-content: space-between; align-items: center; background: #FFD166; color: #111827; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        <span><i class="fas fa-trash-can" style="margin-right: 8px;"></i> Incident deleted. Permanently removing in {{ undoIncidentSeconds() }}s...</span>
+        <button class="btn btn-sm" style="background: #111827; color: #fff; border:none" (click)="undoDelete()">Undo</button>
+      </div>
+    }
+    @else if (undoUserId() !== null) {
+      <div class="toast toast-warning" style="display: flex; justify-content: space-between; align-items: center; background: #FFD166; color: #111827; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        <span><i class="fas fa-user-xmark" style="margin-right: 8px;"></i> Admin User deleted. Permanently removing in {{ undoUserSeconds() }}s...</span>
+        <button class="btn btn-sm" style="background: #111827; color: #fff; border:none" (click)="undoUserDelete()">Undo</button>
+      </div>
+    }
+    @else if (actionMsg()) {
+      <div class="toast toast-success"><i class="fas fa-check-circle"></i> {{ actionMsg() }}</div>
+    }
+    @else if (actionError()) {
+      <div class="toast toast-error"><i class="fas fa-circle-xmark"></i> {{ actionError() }}</div>
+    }
+
+    <!-- ── Stats ── -->
+    <div class="dash-stats">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
+        <div class="stat-body"><span class="stat-value">{{ stats().total }}</span><span class="stat-label">Total</span></div>
+      </div>
+      <div class="stat-card warn">
+        <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+        <div class="stat-body"><span class="stat-value">{{ stats().pending }}</span><span class="stat-label">Pending</span></div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon"><i class="fas fa-spinner"></i></div>
+        <div class="stat-body"><span class="stat-value">{{ stats().inProgress }}</span><span class="stat-label">In Progress</span></div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-body"><span class="stat-value">{{ stats().resolved }}</span><span class="stat-label">Resolved</span></div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon"><i class="fas fa-triangle-exclamation"></i></div>
+        <div class="stat-body"><span class="stat-value">{{ stats().critical }}</span><span class="stat-label">Critical</span></div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon"><i class="fas fa-robot"></i></div>
+        <div class="stat-body"><span class="stat-value">{{ stats().aiProcessed }}</span><span class="stat-label">AI Processed</span></div>
+      </div>
+      <div class="stat-card teal">
+        <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+        <div class="stat-body"><span class="stat-value">{{ avgProcessingMs() }}<small>ms</small></span><span class="stat-label">Avg AI Time</span></div>
+      </div>
+      <div class="stat-card lime">
+        <div class="stat-icon"><i class="fas fa-percent"></i></div>
+        <div class="stat-body"><span class="stat-value">{{ successRate() }}<small>%</small></span><span class="stat-label">Agent Success</span></div>
+      </div>
+    </div>
+
+    <!-- ── Tabs ── -->
+    <div class="dash-tabs">
+      <button class="tab-btn" [class.active]="activeTab() === 'incidents'" (click)="activeTab.set('incidents')">
+        <i class="fas fa-list-ul"></i> Incidents <span class="tab-count">{{ filteredIncidents().length }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'pipeline'" (click)="activeTab.set('pipeline')">
+        <i class="fas fa-sitemap"></i> AI Pipeline <span class="tab-count">{{ stats().aiProcessed }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'notifications'" (click)="activeTab.set('notifications')">
+        <i class="fas fa-bell"></i> Notifications <span class="tab-count" [class.notif-badge]="notifStats().sent > 0">{{ notifStats().total }}</span>
+      </button>
+      @if (isAdmin()) {
+        <button class="tab-btn admin-tab" [class.active]="activeTab() === 'admin'" (click)="activeTab.set('admin')">
+          <i class="fas fa-shield-halved"></i> Admin Panel <span class="tab-count red-count">{{ adminUsers().length }}</span>
+        </button>
+      }
+    </div>
+
+    <!-- ══════════ TAB: INCIDENTS ══════════ -->
+    @if (activeTab() === 'incidents') {
+      <div class="filters card">
+        <div class="filter-group">
+          <label class="form-label"><i class="fas fa-magnifying-glass"></i> Search</label>
+          <input class="form-input" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)" placeholder="Title, district, ID..." />
+        </div>
+        <div class="filter-group">
+          <label class="form-label"><i class="fas fa-circle-dot"></i> Status</label>
+          <select class="form-select" [value]="filterStatus()" (change)="setFilter('status', $any($event.target).value)">
+            <option value="ALL">All Statuses</option>
+            @for (s of statuses; track s) { <option [value]="s">{{ STATUS_LABELS[s] }}</option> }
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="form-label"><i class="fas fa-tag"></i> Category</label>
+          <select class="form-select" [value]="filterCategory()" (change)="setFilter('category', $any($event.target).value)">
+            <option value="ALL">All Categories</option>
+            @for (c of categories; track c) { <option [value]="c">{{ CATEGORY_LABELS[c] }}</option> }
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrapper card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Incident</th><th>District</th><th>Priority</th>
+              <th>Status</th><th>Department</th><th>AI</th><th>Reported</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (inc of filteredIncidents(); track inc.id) {
+              <tr [class.row-critical]="inc.priority === 5">
+                <td><code class="mono-id">#{{ inc.id }}</code></td>
+                <td>
+                  <div class="title-cell">
+                    <span class="cat-dot"><i class="fas {{ CATEGORY_ICONS[inc.category] }}"></i></span>
+                    <div>
+                      <div class="incident-title">{{ inc.title }}</div>
+                      <div class="incident-cat">{{ CATEGORY_LABELS[inc.category] }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="district-pill">{{ inc.district }}</span></td>
+                <td>
+                  <span class="priority-badge p{{ inc.priority }}">
+                    <span class="p-dot"></span>P{{ inc.priority }}
+                  </span>
+                </td>
+                <td>
+                  @if (authService.isStaffOrAdmin()) {
+                    <select class="status-select" [value]="inc.status" (change)="updateStatus(inc.id, $any($event.target).value)">
+                      @for (s of statuses; track s) { <option [value]="s">{{ STATUS_LABELS[s] }}</option> }
+                    </select>
+                  } @else {
+                    <span class="badge {{ STATUS_CLASSES[inc.status] }}">{{ STATUS_LABELS[inc.status] }}</span>
+                  }
+                </td>
+                <td>
+                  @if (inc.assignedDepartment) {
+                    <span class="dept-text" [title]="inc.assignedDepartment">{{ inc.assignedDepartment | slice:0:24 }}{{ inc.assignedDepartment.length > 24 ? '…' : '' }}</span>
+                  } @else { <span class="text-muted">—</span> }
+                </td>
+                <td>
+                  @if (inc.agentProcessed) {
+                    <span class="ai-done" [title]="inc.agentNotes || ''"><i class="fas fa-check-circle"></i></span>
+                  } @else {
+                    <span class="ai-pending"><i class="fas fa-circle-notch fa-spin"></i></span>
+                  }
+                </td>
+                <td class="time-cell">{{ timeAgo(inc.createdAt) }}</td>
+                <td>
+                  @if (isAdmin()) {
+                    <button class="icon-btn danger" (click)="deleteIncident(inc.id, inc.title)" title="Delete incident">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+            @if (filteredIncidents().length === 0) {
+              <tr><td colspan="9" class="empty-state"><i class="fas fa-inbox"></i><span>No incidents match your filters</span></td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- ══════════ TAB: AI PIPELINE ══════════ -->
+    @if (activeTab() === 'pipeline') {
+      @if (toolUsageStats().length > 0) {
+        <div class="tool-bar card">
+          <div class="tool-bar-title"><i class="fas fa-wrench"></i> Tool Invocations</div>
+          <div class="tool-chips">
+            @for (t of toolUsageStats(); track t.name) {
+              <div class="tool-chip" [style.--tc]="t.meta.color || '#8896A9'">
+                <i class="fas {{ t.meta.icon || 'fa-wrench' }}"></i>
+                <span>{{ t.meta.label || t.name }}</span>
+                <span class="tc-count">{{ t.count }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="pipeline-grid">
+        @for (pi of pipelineIncidents(); track pi.id) {
+          <div class="pipeline-card card">
+            <div class="pc-header">
+              <code class="mono-id">#{{ pi.id }}</code>
+              <span class="pc-title">{{ pi.title }}</span>
+            </div>
+            <div class="agent-flow">
+              @for (log of pi.logs; track log.id; let last = $last) {
+                <div class="agent-step" [class.step-error]="!log.success">
+                  <div class="step-agent">
+                    <span class="badge {{ AGENT_BADGE_CLASSES[log.agentName] }} step-badge">{{ AGENT_LABELS[log.agentName] }}</span>
+                    <span class="step-action">{{ log.action }}</span>
+                  </div>
+                  @if (getToolsForLog(log).length > 0) {
+                    <div class="step-tools">
+                      @for (tool of getToolsForLog(log); track tool) {
+                        <span class="tool-tag" [style.--tc]="getToolMeta(tool).color" [title]="getToolMeta(tool).label">
+                          <i class="fas {{ getToolMeta(tool).icon }}"></i> {{ getToolMeta(tool).label }}
+                        </span>
+                      }
+                    </div>
+                  }
+                  <div class="step-output">{{ log.outputSummary }}</div>
+                  <div class="step-meta">
+                    <span class="step-time" [class.step-slow]="log.processingMs > 2000"><i class="fas fa-stopwatch"></i> {{ log.processingMs }}ms</span>
+                    @if (log.confidence) { <span class="step-conf"><i class="fas fa-bullseye"></i> {{ (log.confidence * 100).toFixed(0) }}%</span> }
+                    @if (log.notificationsSent) { <span class="step-notif"><i class="fas fa-paper-plane"></i> {{ log.notificationsSent }}</span> }
+                  </div>
+                </div>
+                @if (!last) { <div class="step-arrow"><i class="fas fa-chevron-down"></i></div> }
+              }
+            </div>
+            <div class="pc-footer">
+              <span class="time-cell">{{ pi.logs.length ? timeAgo(pi.logs[0].timestamp) : '' }}</span>
+              <span class="pc-log-count">{{ pi.logs.length }} agent log{{ pi.logs.length !== 1 ? 's' : '' }}</span>
+            </div>
+          </div>
+        }
+        @if (pipelineIncidents().length === 0) {
+          <div class="empty-pipeline"><i class="fas fa-robot"></i><p>No AI pipeline runs yet. Submit an incident to trigger the pipeline.</p></div>
+        }
+      </div>
+
+      <!-- Pagination for AI Pipeline -->
+      @if (pipelineTotalPages() > 1) {
+        <div class="pagination-controls" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem;">
+          <button class="btn btn-outline btn-sm" [disabled]="pipelinePage() === 1" (click)="setPipelinePage(pipelinePage() - 1)">Prev</button>
+          
+          @for (p of [].constructor(pipelineTotalPages()); track $index) {
+            @if ($index >= pipelinePage() - 3 && $index <= pipelinePage() + 1) {
+              <button class="btn btn-sm" 
+                      [class.btn-primary]="pipelinePage() === $index + 1"
+                      [class.btn-outline]="pipelinePage() !== $index + 1"
+                      (click)="setPipelinePage($index + 1)">
+                {{ $index + 1 }}
+              </button>
+            }
+          }
+
+          <button class="btn btn-outline btn-sm" [disabled]="pipelinePage() === pipelineTotalPages()" (click)="setPipelinePage(pipelinePage() + 1)">Next</button>
+        </div>
+      }
+
+      <div class="table-wrapper card" style="margin-top:1.5rem">
+        <div class="agent-log-header">
+          <h3><i class="fas fa-terminal"></i> Raw Agent Log</h3>
+          <div class="live-indicator"><span class="status-dot live"></span> Pipeline Active</div>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Time</th><th>Agent</th><th>Incident</th><th>Tools</th><th>Output</th><th>ms</th><th>OK</th></tr></thead>
+          <tbody>
+            @for (log of rawAgentLogs(); track log.id) {
+              <tr [class.log-error]="!log.success">
+                <td class="time-cell">{{ formatTime(log.timestamp) }}</td>
+                <td><span class="badge {{ AGENT_BADGE_CLASSES[log.agentName] }}" style="font-size:0.68rem">{{ AGENT_LABELS[log.agentName] }}</span></td>
+                <td><code class="mono-id">#{{ log.incidentId }}</code></td>
+                <td>
+                  <div class="tools-cell">
+                    @for (tool of getToolsForLog(log); track tool) {
+                      <span class="mini-tool" [style.--tc]="getToolMeta(tool).color" [title]="getToolMeta(tool).label">
+                        <i class="fas {{ getToolMeta(tool).icon }}"></i>
+                      </span>
+                    }
+                    @if (getToolsForLog(log).length === 0) { <span class="text-muted">—</span> }
+                  </div>
+                </td>
+                <td class="log-text">{{ log.outputSummary }}</td>
+                <td><span class="mono-id" [class.slow-ms]="log.processingMs > 2000">{{ log.processingMs > 0 ? log.processingMs + 'ms' : '—' }}</span></td>
+                <td>
+                  @if (log.success) { <i class="fas fa-circle-check" style="color:var(--success)"></i> }
+                  @else { <i class="fas fa-circle-xmark" style="color:var(--danger)"></i> }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <!-- Pagination for Raw Agent Logs -->
+        @if (rawLogsTotalPages() > 1) {
+          <div class="pagination-controls" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem; padding-bottom: 1rem;">
+            <button class="btn btn-outline btn-sm" [disabled]="rawLogsPage() === 1" (click)="setRawLogsPage(rawLogsPage() - 1)">Prev</button>
+            <span style="align-self: center; font-size: 0.9rem; color: var(--text-muted)">Page {{ rawLogsPage() }} of {{ rawLogsTotalPages() }}</span>
+            <button class="btn btn-outline btn-sm" [disabled]="rawLogsPage() === rawLogsTotalPages()" (click)="setRawLogsPage(rawLogsPage() + 1)">Next</button>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ══════════ TAB: NOTIFICATIONS ══════════ -->
+    @if (activeTab() === 'notifications') {
+      <div class="notif-stats">
+        <div class="notif-stat-card"><i class="fas fa-paper-plane"></i><span class="ns-val">{{ notifStats().total }}</span><span class="ns-lbl">Total</span></div>
+        <div class="notif-stat-card green"><i class="fas fa-check-circle"></i><span class="ns-val">{{ notifStats().sent }}</span><span class="ns-lbl">Sent</span></div>
+        <div class="notif-stat-card red"><i class="fas fa-circle-xmark"></i><span class="ns-val">{{ notifStats().failed }}</span><span class="ns-lbl">Failed</span></div>
+        <div class="notif-stat-card orange"><i class="fas fa-bell"></i><span class="ns-val">{{ notifStats().pushes }}</span><span class="ns-lbl">Pushover</span></div>
+        <div class="notif-stat-card teal"><i class="fas fa-envelope"></i><span class="ns-val">{{ notifStats().emails }}</span><span class="ns-lbl">Emails</span></div>
+      </div>
+
+      <div class="notif-feed card">
+        <div class="agent-log-header">
+          <h3><i class="fas fa-satellite-dish"></i> Notification Feed</h3>
+          <span class="badge badge-cyan">AI-Triggered</span>
+        </div>
+        @if (notificationEvents().length > 0) {
+          <div class="notif-timeline">
+            @for (ev of notificationEvents(); track $index) {
+              <div class="notif-event" [class.ne-sent]="ev.status === 'sent'" [class.ne-failed]="ev.status === 'failed'" [class.ne-skipped]="ev.status === 'skipped'">
+                <div class="ne-icon-wrap"><i class="fas {{ getNotifIcon(ev.channel) }}" [style.color]="getNotifColor(ev.status)"></i></div>
+                <div class="ne-body">
+                  <div class="ne-title">
+                    <span class="ne-channel">{{ ev.channel | titlecase }}</span>
+                    <span class="ne-status" [style.color]="getNotifColor(ev.status)">{{ ev.status }}</span>
+                  </div>
+                  <div class="ne-incident"><code class="mono-id">#{{ ev.incidentId }}</code><span>{{ ev.title }}</span></div>
+                </div>
+                <div class="ne-time">{{ timeAgo(ev.time) }}</div>
+              </div>
+            }
+          </div>
+          
+          <!-- Pagination for Notifications -->
+          @if (notifTotalPages() > 1) {
+            <div class="pagination-controls" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem; padding-bottom: 0.5rem;">
+              <button class="btn btn-outline btn-sm" [disabled]="notifPage() === 1" (click)="setNotifPage(notifPage() - 1)">Prev</button>
+              <span style="align-self: center; font-size: 0.9rem; color: var(--text-muted)">Page {{ notifPage() }} of {{ notifTotalPages() }} ({{ notifTotalElements() }} total)</span>
+              <button class="btn btn-outline btn-sm" [disabled]="notifPage() === notifTotalPages()" (click)="setNotifPage(notifPage() + 1)">Next</button>
+            </div>
+          }
+        } @else {
+          <div class="empty-pipeline" style="padding:3rem">
+            <i class="fas fa-bell-slash"></i>
+            <p>No notifications sent yet.<br>Configure <code>PUSHOVER_APP_TOKEN</code> and <code>GMAIL_USER</code> in .env to enable.</p>
+          </div>
+        }
+      </div>
+
+      <div class="config-guide card">
+        <h3><i class="fas fa-gear"></i> Notification Configuration</h3>
+        <div class="config-grid">
+          <div class="config-item">
+            <div class="config-icon pushover"><i class="fas fa-bell"></i></div>
+            <div class="config-body">
+              <h4>Pushover Push Notifications</h4>
+              <p>Auto-sent for P4/P5 incidents and escalations.</p>
+              <div class="env-vars">
+                <code>PUSHOVER_APP_TOKEN=<span class="ev-val">your_app_token</span></code>
+                <code>PUSHOVER_USER_KEY=<span class="ev-val">your_user_key</span></code>
+              </div>
+              <a href="https://pushover.net" target="_blank" class="config-link"><i class="fas fa-arrow-up-right-from-square"></i> pushover.net — Free: 10k/month</a>
+            </div>
+          </div>
+          <div class="config-item">
+            <div class="config-icon gmail"><i class="fas fa-envelope"></i></div>
+            <div class="config-body">
+              <h4>Gmail Reporter Notifications</h4>
+              <p>Confirmation emails with department and SLA to reporters.</p>
+              <div class="env-vars">
+                <code>GMAIL_USER=<span class="ev-val">your&#64;gmail.com</span></code>
+                <code>GMAIL_APP_PASSWORD=<span class="ev-val">xxxx xxxx xxxx xxxx</span></code>
+              </div>
+              <a href="https://myaccount.google.com/apppasswords" target="_blank" class="config-link"><i class="fas fa-arrow-up-right-from-square"></i> Google App Passwords</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ══════════ TAB: ADMIN PANEL ══════════ -->
+    @if (activeTab() === 'admin' && isAdmin()) {
+      <div class="admin-header card">
+        <div class="admin-header-inner">
+          <div>
+            <h3><i class="fas fa-shield-halved"></i> Admin Panel</h3>
+            <p>Manage users, roles and system access. Changes take effect immediately.</p>
+          </div>
+          <span class="badge badge-red"><i class="fas fa-lock"></i> Admin Only</span>
+        </div>
+      </div>
+
+      <!-- User Management Table -->
+      <div class="table-wrapper card">
+        <div class="agent-log-header">
+          <h3><i class="fas fa-users"></i> User Management ({{ adminUsers().length }} users)</h3>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>District</th><th>Reports</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            @for (user of adminUsers(); track user.id) {
+              <tr [class.row-disabled]="!user.enabled">
+                <td><code class="mono-id">#{{ user.id }}</code></td>
+                <td>
+                  <div class="user-cell">
+                    <span class="user-avatar" [style.background]="getRoleColor(user.role) + '22'" [style.color]="getRoleColor(user.role)">
+                      {{ user.name.charAt(0).toUpperCase() }}
+                    </span>
+                    <span class="user-name">{{ user.name }}</span>
+                  </div>
+                </td>
+                <td class="email-cell">{{ user.email }}</td>
+                <td>
+                  <select class="role-select"
+                    (change)="updateUserRole(user.id, $any($event.target).value)"
+                    [style.border-color]="getRoleColor(user.role) + '55'">
+                    @for (r of roles; track r) { 
+                      <option [value]="r" [selected]="r === user.role">{{ r }}</option> 
+                    }
+                  </select>
+                </td>
+                <td><span class="district-pill">{{ user.district || '—' }}</span></td>
+                <td><span class="mono-id">{{ user.incidentCount }}</span></td>
+                <td>
+                  <button class="status-toggle" [class.enabled]="user.enabled" (click)="toggleUser(user.id)">
+                    <i class="fas" [class.fa-toggle-on]="user.enabled" [class.fa-toggle-off]="!user.enabled"></i>
+                    {{ user.enabled ? 'Active' : 'Disabled' }}
+                  </button>
+                </td>
+                <td class="time-cell">{{ timeAgo(user.createdAt) }}</td>
+                <td>
+                  <button class="icon-btn danger" (click)="deleteUser(user.id, user.name)"
+                    [disabled]="user.id === authService.currentUser()?.userId"
+                    [title]="user.id === authService.currentUser()?.userId ? 'Cannot delete yourself' : 'Delete user'">
+                    <i class="fas fa-user-minus"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+            @if (adminUsers().length === 0) {
+              <tr><td colspan="9" class="empty-state"><i class="fas fa-users"></i><span>Loading users...</span></td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Incident Management (Admin delete) -->
+      <div class="table-wrapper card" style="margin-top:1rem">
+        <div class="agent-log-header">
+          <h3><i class="fas fa-trash-can"></i> Incident Management</h3>
+          <span class="badge badge-orange">{{ allIncidents().length }} total</span>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>Title</th><th>Reporter</th><th>Priority</th><th>Status</th><th>Created</th><th>Delete</th></tr></thead>
+          <tbody>
+            @for (inc of allIncidents(); track inc.id) {
+              <tr>
+                <td><code class="mono-id">#{{ inc.id }}</code></td>
+                <td><span class="incident-title">{{ inc.title | slice:0:50 }}{{ inc.title.length > 50 ? '…' : '' }}</span></td>
+                <td class="text-muted">{{ inc.reporterName }}</td>
+                <td><span class="priority-badge p{{ inc.priority }}"><span class="p-dot"></span>P{{ inc.priority }}</span></td>
+                <td><span class="badge {{ STATUS_CLASSES[inc.status] }}">{{ STATUS_LABELS[inc.status] }}</span></td>
+                <td class="time-cell">{{ timeAgo(inc.createdAt) }}</td>
+                <td>
+                  <button class="icon-btn danger" (click)="deleteIncident(inc.id, inc.title)" title="Delete incident">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+  </div>
+</div>

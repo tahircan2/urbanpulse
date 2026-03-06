@@ -1,0 +1,43 @@
+<div class="auth-page">
+  <div class="auth-card card">
+    <div class="auth-logo">
+      <div class="logo-icon"><i class="fas fa-city"></i></div>
+      <h1>Urban<span>Pulse</span></h1>
+    </div>
+    <h2>Create Account</h2>
+    <p class="auth-sub">Join the smart city community</p>
+
+    @if (error()) {
+      <div class="auth-error"><i class="fas fa-circle-exclamation"></i>{{ error() }}</div>
+    }
+
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input class="form-input" [(ngModel)]="name" placeholder="Ahmet Yılmaz" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" type="email" [(ngModel)]="email" placeholder="ahmet@example.com" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" [(ngModel)]="password" placeholder="Min. 6 characters" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">District (optional)</label>
+      <select class="form-select" [(ngModel)]="district">
+        <option value="">Select district...</option>
+        @for (d of districts; track d) { <option [value]="d">{{ d }}</option> }
+      </select>
+    </div>
+
+    <button class="btn btn-primary btn-lg auth-btn" (click)="submit()" [disabled]="loading()">
+      @if (loading()) { <i class="fas fa-spinner fa-spin"></i> Creating account... }
+      @else           { <i class="fas fa-user-plus"></i> Create Account }
+    </button>
+
+    <p class="auth-footer">
+      Already have an account? <a routerLink="/login">Sign in</a>
+    </p>
+  </div>
+</div>
