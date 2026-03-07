@@ -90,8 +90,7 @@ npm start          # proxies /api → localhost:8080
 
 ## 🌐 Live Demo
 
-- **Frontend:** https://urbanpulse.vercel.app
-- **Backend API:** https://urbanpulse-api.up.railway.app/api
+- **Frontend:** https://urbanpulse-six.vercel.app/
 
 ---
 
