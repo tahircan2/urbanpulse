@@ -1,0 +1,44 @@
+# Production overrides — set via Railway/environment variables
+server:
+  port: ${PORT:8080}
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+  jpa:
+    hibernate:
+      ddl-auto: update # create tables automatically on first deploy
+    show-sql: false
+
+  sql:
+    init:
+      mode: always # run data.sql to seed demo users on every restart (INSERT IGNORE is safe)
+      encoding: UTF-8
+
+urbanpulse:
+  jwt:
+    secret: ${JWT_SECRET:urbanpulse-super-secret-jwt-key-2026-256bits-long}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:https://urbanpulse.vercel.app,http://localhost:4200}
+
+ai:
+  service:
+    url: ${AI_SERVICE_URL:http://localhost:8000/api}
+    secret: ${INTERNAL_SECRET:urbanpulse-internal-secret-2026}
+
+management:
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  level:
+    com.urbanpulse: INFO
+    org.springframework.security: WARN
+    org.hibernate: WARN
