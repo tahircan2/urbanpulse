@@ -57,6 +57,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     // Run Leaflet outside Angular zone — zero CD triggered per map interaction
     this.zone.runOutsideAngular(() => {
       this.initMap();
+      // FIX: Leaflet needs to recalculate size after container is fully rendered by Angular
+      setTimeout(() => {
+        if (this.map) {
+          this.map.invalidateSize();
+        }
+      }, 100);
       this.loadIncidents();
     });
 
