@@ -79,7 +79,7 @@ services:
       backend:
         condition: service_healthy
     environment:
-      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
       SPRING_BACKEND_URL: "http://backend:8080/api"
       INTERNAL_SECRET: "${INTERNAL_SECRET:-change_this_in_production_please}"
       ENVIRONMENT: "production"

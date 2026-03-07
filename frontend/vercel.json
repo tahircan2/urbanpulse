@@ -10,7 +10,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "https://urbanpulse-api.up.railway.app/api/$1"
+      "dest": "https://urbanpulse-production.up.railway.app/api/$1"
     },
     {
       "src": "/(.*)",
