@@ -7,14 +7,14 @@
       "config": { "distDir": "dist/urbanpulse/browser" }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "https://urbanpulse-production.up.railway.app/api/$1"
+      "source": "/api/(.*)",
+      "destination": "https://urbanpulse-production.up.railway.app/api/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "env": {
