@@ -11,6 +11,7 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 2
   jpa:
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: update # create tables automatically on first deploy
     show-sql: false
