@@ -32,7 +32,7 @@ public class AgentResultRequest {
     private String assignedDepartment;
 
     @JsonProperty("sla_hours")
-    @Min(value = 1, message = "slaHours must be at least 1")
+    @Min(value = 0, message = "slaHours must not be negative")
     @Max(value = 720, message = "slaHours must not exceed 720")
     private int slaHours;
 
@@ -42,6 +42,10 @@ public class AgentResultRequest {
 
     @JsonProperty("agent_processed")
     private boolean agentProcessed = true;
+
+    private boolean success = true;
+
+    private String error;
 
     @Valid
     private List<AgentLogEntry> logs;

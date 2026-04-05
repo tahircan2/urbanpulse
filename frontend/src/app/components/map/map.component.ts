@@ -16,6 +16,7 @@ import * as L from 'leaflet';
 import 'leaflet.markercluster';
 import { IncidentService } from '../../services/incident.service';
 import { WebSocketService } from '../../services/websocket.service';
+import { AgentMessageComponent } from '../agent-message/agent-message.component';
 import {
   Incident, IncidentStatus,
   CATEGORY_LABELS, CATEGORY_ICONS, STATUS_LABELS, STATUS_CLASSES, PRIORITY_CLASSES
@@ -24,7 +25,7 @@ import {
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [],
+  imports: [AgentMessageComponent],
   templateUrl: './map.component.html',
   styleUrl: './map.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,18 +35,18 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private mapContainer!: ElementRef<HTMLDivElement>;
 
   private readonly incidentService = inject(IncidentService);
-  private readonly ws              = inject(WebSocketService);
-  private readonly zone            = inject(NgZone);
-  private readonly destroyRef      = inject(DestroyRef);
+  private readonly ws = inject(WebSocketService);
+  private readonly zone = inject(NgZone);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly CATEGORY_LABELS = CATEGORY_LABELS;
-  readonly CATEGORY_ICONS  = CATEGORY_ICONS;
-  readonly STATUS_LABELS   = STATUS_LABELS;
-  readonly STATUS_CLASSES  = STATUS_CLASSES;
+  readonly CATEGORY_ICONS = CATEGORY_ICONS;
+  readonly STATUS_LABELS = STATUS_LABELS;
+  readonly STATUS_CLASSES = STATUS_CLASSES;
   readonly PRIORITY_CLASSES = PRIORITY_CLASSES;
 
-  readonly incidents    = signal<Incident[]>([]);
-  readonly selected     = signal<Incident | null>(null);
+  readonly incidents = signal<Incident[]>([]);
+  readonly selected = signal<Incident | null>(null);
   readonly filterStatus = signal<IncidentStatus | 'ALL'>('ALL');
 
   private map!: L.Map;
@@ -81,11 +82,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       .subscribe(inc => {
         this.incidents.update(list => list.map(i => i.id === inc.id ? inc : i));
         if (this.selected()?.id === inc.id) {
-           this.selected.set(inc);
+          this.selected.set(inc);
         }
         this.zone.runOutsideAngular(() => {
-           this.removeMarker(inc.id);
-           this.addMarker(inc);
+          this.removeMarker(inc.id);
+          this.addMarker(inc);
         });
       });
   }
@@ -97,8 +98,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private initMap(): void {
     this.map = L.map(this.mapContainer.nativeElement, {
-      center: [41.0082, 28.9784],
-      zoom: 11,
+      center: [36.8969, 30.7133], // Antalya merkez
+      zoom: 12,
       zoomControl: false,
       // Performance: prefer canvas renderer for many markers
       preferCanvas: true,
@@ -152,7 +153,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     if (!this.map || this.markerMap.has(incident.id)) return;
 
     const color = this.getMarkerColor(incident.priority);
-    const icon  = L.divIcon({
+    const icon = L.divIcon({
       className: '',
       html: `<div style="
         width:30px;height:30px;
@@ -162,20 +163,19 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         border:2px solid rgba(255,255,255,0.25);
         box-shadow:0 2px 8px ${color}66;
         display:flex;align-items:center;justify-content:center;
-      "><div style="transform:rotate(45deg);color:#0A0E1A;font-size:10px;font-weight:700">P${incident.priority}</div></div>`,
-      iconSize:   [30, 30],
+      "><div style="transform:rotate(45deg);color:#0A0E1A;font-size:10px;font-weight:700">${incident.priority}.S</div></div>`,
+      iconSize: [30, 30],
       iconAnchor: [15, 30],
     });
 
     const marker = L.marker([incident.latitude, incident.longitude], { icon })
-      .on('click', () => {
+      .on('click', (e) => {
+        if (e.originalEvent) {
+          L.DomEvent.stopPropagation(e.originalEvent);
+        }
         // Re-enter Angular zone only on user interaction
         this.zone.run(() => {
-          if (this.selected()?.id === incident.id) {
-            this.selected.set(null);
-          } else {
-             this.selected.set(incident);
-          }
+          this.toggleSelection(incident);
         });
       });
 
@@ -198,9 +198,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   setFilter(status: IncidentStatus | 'ALL'): void {
     this.filterStatus.set(status);
 
-    const all      = this.incidents();
+    const all = this.incidents();
     const filtered = status === 'ALL' ? all : all.filter(i => i.status === status);
-    const keep     = new Set(filtered.map(i => i.id));
+    const keep = new Set(filtered.map(i => i.id));
 
     this.zone.runOutsideAngular(() => {
       // Remove markers no longer matching the filter
@@ -212,9 +212,17 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  toggleSelection(inc: Incident): void {
+    if (this.selected()?.id === inc.id) {
+      this.selected.set(null);
+    } else {
+      this.selected.set(inc);
+    }
+  }
+
   timeAgo(dateStr: string): string {
     const m = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
-    if (m < 1)  return 'just now';
+    if (m < 1) return 'just now';
     if (m < 60) return `${m}m ago`;
     const h = Math.floor(m / 60);
     return h < 24 ? `${h}h ago` : `${Math.floor(h / 24)}d ago`;

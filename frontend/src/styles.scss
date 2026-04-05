@@ -70,8 +70,6 @@ body {
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
-  /* Promote body to GPU composite layer for smooth scrolling */
-  transform: translateZ(0);
 }
 
 /* ── Typography ───────────────────────────────────────────────────── */
@@ -157,11 +155,12 @@ a:hover { color: var(--accent-dim); }
   border-radius: var(--radius);
   padding: 1.5rem;
   /* Only animate the properties we actually change */
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  transition: border-color 0.25s ease-out, box-shadow 0.25s ease-out, transform 0.25s ease-out;
 
   &:hover {
     border-color: var(--border-accent);
     box-shadow: var(--shadow-accent);
+    transform: translateY(-2px);
   }
 }
 
@@ -188,8 +187,11 @@ a:hover { color: var(--accent-dim); }
     color: var(--primary);
     &:hover {
       background: var(--accent-dim);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0,212,255,0.25);
+      transform: scale(1.02) translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,212,255,0.3);
+    }
+    &:active {
+      transform: scale(0.98);
     }
   }
   &.btn-outline {
@@ -198,13 +200,17 @@ a:hover { color: var(--accent-dim); }
     border: 1px solid var(--border-accent);
     &:hover {
       background: var(--accent-glow);
-      transform: translateY(-2px);
+      transform: scale(1.02) translateY(-2px);
+    }
+    &:active {
+      transform: scale(0.98);
     }
   }
   &.btn-danger {
     background: var(--danger);
     color: white;
-    &:hover { background: #e0354f; transform: translateY(-2px); }
+    &:hover { background: #e0354f; transform: scale(1.02) translateY(-2px); }
+    &:active { transform: scale(0.98); }
   }
   &.btn-sm  { padding: 0.4rem 0.9rem; font-size: 0.8rem; }
   &.btn-lg  { padding: 0.85rem 2rem; font-size: 1rem; }

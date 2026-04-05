@@ -49,6 +49,8 @@ public class IncidentService {
                 .latitude(req.getLatitude())
                 .longitude(req.getLongitude())
                 .district(req.getDistrict().trim())
+                .neighbourhood(req.getNeighbourhood() != null ? req.getNeighbourhood().trim() : null)
+                .street(req.getStreet() != null ? req.getStreet().trim() : null)
                 .photoUrl(req.getPhotoUrl())
                 .reporter(reporter)
                 .agentProcessed(false)
@@ -144,6 +146,8 @@ public class IncidentService {
                 .latitude(i.getLatitude())
                 .longitude(i.getLongitude())
                 .district(i.getDistrict())
+                .neighbourhood(i.getNeighbourhood())
+                .street(i.getStreet())
                 .photoUrl(i.getPhotoUrl())
                 .reporterName(i.getReporter() != null ? i.getReporter().getName() : "Anonymous")
                 .assignedDepartment(i.getAssignedDepartment() != null

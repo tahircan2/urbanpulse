@@ -5,7 +5,6 @@ import com.urbanpulse.dto.response.UserResponse;
 import com.urbanpulse.entity.User;
 import com.urbanpulse.enums.UserRole;
 import com.urbanpulse.exception.ResourceNotFoundException;
-import com.urbanpulse.repository.IncidentRepository;
 import com.urbanpulse.repository.AgentLogRepository;
 import com.urbanpulse.repository.UserRepository;
 import jakarta.validation.constraints.NotNull;
@@ -30,7 +29,6 @@ import java.util.List;
 public class AdminController {
 
     private final UserRepository userRepository;
-    private final IncidentRepository incidentRepository;
     private final AgentLogRepository agentLogRepository;
 
     // ── Users ──────────────────────────────────────────────────────────────────

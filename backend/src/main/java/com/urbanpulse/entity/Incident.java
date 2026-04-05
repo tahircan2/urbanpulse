@@ -61,6 +61,14 @@ public class Incident {
     @Column(nullable = false, length = 80)
     private String district;
 
+    /** Nominatim'den alınan mahalle adı (GPS konum tespiti sırasında doldurulur) */
+    @Column(length = 120)
+    private String neighbourhood;
+
+    /** Nominatim'den alınan cadde/sokak adı (GPS konum tespiti sırasında doldurulur) */
+    @Column(length = 200)
+    private String street;
+
     @Column(length = 500)
     private String photoUrl;
 
@@ -75,6 +83,10 @@ public class Incident {
     @Column(nullable = false)
     @Builder.Default
     private boolean agentProcessed = false;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean slaEscalated = false;
 
     @Column(columnDefinition = "TEXT")
     private String agentNotes;

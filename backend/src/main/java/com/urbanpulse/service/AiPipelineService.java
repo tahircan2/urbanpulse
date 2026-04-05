@@ -4,6 +4,7 @@ import com.urbanpulse.dto.request.AgentResultRequest;
 import com.urbanpulse.dto.request.AgentResultRequest.AgentLogEntry;
 import com.urbanpulse.dto.response.IncidentResponse;
 import com.urbanpulse.entity.AgentLog;
+
 import com.urbanpulse.entity.Department;
 import com.urbanpulse.entity.Incident;
 import com.urbanpulse.enums.IncidentStatus;
@@ -17,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -75,6 +76,8 @@ public class AiPipelineService {
         incidentPayload.put("latitude", incident.getLatitude());
         incidentPayload.put("longitude", incident.getLongitude());
         incidentPayload.put("district", incident.getDistrict());
+        incidentPayload.put("neighbourhood", incident.getNeighbourhood());
+        incidentPayload.put("street", incident.getStreet());
         // FIX: reporter is LAZY — safe to access here because we're @Transactional
         incidentPayload.put("reporter_name", incident.getReporter() != null
                 ? incident.getReporter().getName()
@@ -111,6 +114,20 @@ public class AiPipelineService {
     public void applyAgentResult(Long incidentId, AgentResultRequest req) {
         Incident incident = incidentRepository.findById(incidentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Incident not found: " + incidentId));
+
+        if (incident.getStatus() == IncidentStatus.CLOSED || incident.getStatus() == IncidentStatus.RESOLVED) {
+            log.info("Incident {} is already {}, ignoring agent result", incidentId, incident.getStatus());
+            return;
+        }
+
+        if (!req.isSuccess()) {
+            incident.setAgentProcessed(false);
+            incident.setAgentNotes(req.getAgentNotes());
+            incidentRepository.save(incident);
+            log.error("AI processing failed for incident {}: {}", incidentId, req.getError());
+            wsPublisher.publishAgentActivity("AI processing failed for Incident #" + incidentId);
+            return;
+        }
 
         incident.setCategory(req.getCategory());
         incident.setPriority(req.getPriority());
@@ -162,6 +179,8 @@ public class AiPipelineService {
                 .latitude(i.getLatitude())
                 .longitude(i.getLongitude())
                 .district(i.getDistrict())
+                .neighbourhood(i.getNeighbourhood())
+                .street(i.getStreet())
                 .photoUrl(i.getPhotoUrl())
                 .reporterName(i.getReporter() != null ? i.getReporter().getName() : "Anonymous")
                 .assignedDepartment(i.getAssignedDepartment() != null
@@ -181,61 +200,9 @@ public class AiPipelineService {
         Incident incident = incidentRepository.findById(incidentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Incident not found: " + incidentId));
 
-        agentLogRepository.deleteByIncidentId(incidentId);
-
         saveLogs(incident, entries);
         log.info("Saved {} agent logs for incident {}", entries.size(), incidentId);
     }
-
-    // ── 4. Scheduled SLA monitor (every 15 min) ───────────────────────────────
-
-    /**
-     * FIX: @Transactional added.
-     * Without it, accessing incident.getReporter() on LAZY association
-     * throws LazyInitializationException since no persistence context exists
-     * for @Scheduled methods.
-     *
-     * FIX: Map.of() replaced with HashMap to support 12 key-value pairs.
-     */
-    @Scheduled(fixedRateString = "${ai.service.monitor-interval-ms:900000}")
-    @Transactional(readOnly = true)
-    public void scheduledMonitor() {
-        List<Incident> open = incidentRepository.findByStatusIn(
-                List.of(IncidentStatus.PENDING, IncidentStatus.IN_PROGRESS));
-
-        if (open.isEmpty())
-            return;
-        log.info("Scheduled monitor: checking {} open incidents", open.size());
-
-        List<Map<String, Object>> incidentDTOs = open.stream().map(inc -> {
-            Map<String, Object> m = new HashMap<>();
-            m.put("id", inc.getId());
-            m.put("title", inc.getTitle());
-            m.put("description", inc.getDescription());
-            m.put("category", inc.getCategory().name());
-            m.put("status", inc.getStatus().name());
-            m.put("priority", inc.getPriority());
-            m.put("latitude", inc.getLatitude());
-            m.put("longitude", inc.getLongitude());
-            m.put("district", inc.getDistrict());
-            m.put("reporter_name", inc.getReporter() != null
-                    ? inc.getReporter().getName()
-                    : "Anonymous");
-            m.put("created_at", inc.getCreatedAt().toString());
-            m.put("agent_processed", inc.isAgentProcessed());
-            return m;
-        }).toList();
-
-        try {
-            Map<String, Object> body = new HashMap<>();
-            body.put("incidents", incidentDTOs);
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, buildHeaders());
-            restTemplate.postForEntity(aiServiceUrl + "/monitor/check", entity, String.class);
-        } catch (Exception e) {
-            log.warn("Scheduled monitor call failed: {}", e.getMessage());
-        }
-    }
-
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private void saveLogs(Incident incident, List<AgentLogEntry> entries) {

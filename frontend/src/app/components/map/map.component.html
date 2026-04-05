@@ -6,7 +6,7 @@
       <i class="fas fa-map-location-dot"></i>
       <div>
         <h1>Live City Map</h1>
-        <span class="badge badge-green"><span class="status-dot live"></span> Real-time · Istanbul</span>
+        <span class="badge badge-green"><span class="status-dot live"></span> Real-time · Antalya</span>
       </div>
     </div>
 
@@ -38,6 +38,9 @@
               <code class="mono-id">{{ selected()!.id }}</code>
               <h3>{{ selected()!.title }}</h3>
             </div>
+            <button class="btn btn-sm" style="margin-left:auto; background:transparent; border:none; outline:none; color:var(--text-muted); cursor:pointer" (click)="selected.set(null)">
+              <i class="fas fa-times" style="font-size:1.2rem"></i>
+            </button>
           </div>
 
           <div class="panel-badges">
@@ -45,7 +48,7 @@
               {{ STATUS_LABELS[selected()!.status] }}
             </span>
             <span class="badge {{ PRIORITY_CLASSES[selected()!.priority] }}">
-              P{{ selected()!.priority }}
+              {{ selected()!.priority }}. Seviye
             </span>
           </div>
 
@@ -69,9 +72,8 @@
           </div>
 
           @if (selected()!.agentNotes) {
-            <div class="agent-note">
-              <i class="fas fa-robot"></i>
-              <span>{{ selected()!.agentNotes }}</span>
+            <div style="margin-top:1rem">
+              <app-agent-message [notes]="selected()!.agentNotes"></app-agent-message>
             </div>
           }
         </div>
@@ -89,7 +91,7 @@
         </h4>
         @for (inc of incidents(); track inc.id) {
           <div class="panel-list-item" [class.selected]="selected()?.id === inc.id"
-            (click)="selected()?.id === inc.id ? selected.set(null) : selected.set(inc)">
+            (click)="toggleSelection(inc)">
             <div class="list-item-icon">
               <i class="fas {{ CATEGORY_ICONS[inc.category] }}"></i>
             </div>
@@ -98,7 +100,7 @@
               <span class="list-item-meta">{{ inc.district }} · {{ timeAgo(inc.createdAt) }}</span>
             </div>
             <span class="badge {{ PRIORITY_CLASSES[inc.priority] }}" style="font-size:0.65rem">
-              P{{ inc.priority }}
+              {{ inc.priority }}. Seviye
             </span>
           </div>
         }

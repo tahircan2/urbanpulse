@@ -31,7 +31,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -60,7 +60,7 @@ services:
     ports:
       - "8080:8080"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/actuator/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/api/actuator/health" ]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -87,7 +87,7 @@ services:
     ports:
       - "8000:8000"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/health" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -110,12 +110,13 @@ services:
     ports:
       - "4200:4200"
     volumes:
-      - ./frontend/src:/app/src   # live reload in dev
+      - ./frontend/src:/app/src # live reload in dev
     networks:
       - urbanpulse-net
 
 volumes:
   mysql_data:
+
 
 networks:
   urbanpulse-net:

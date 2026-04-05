@@ -139,7 +139,7 @@
                 <td><span class="district-pill">{{ inc.district }}</span></td>
                 <td>
                   <span class="priority-badge p{{ inc.priority }}">
-                    <span class="p-dot"></span>P{{ inc.priority }}
+                    <span class="p-dot"></span>{{ inc.priority }}. Seviye
                   </span>
                 </td>
                 <td>
@@ -221,7 +221,9 @@
                       }
                     </div>
                   }
-                  <div class="step-output">{{ log.outputSummary }}</div>
+                  <div class="step-output-container">
+                    <app-agent-message [notes]="log.outputSummary"></app-agent-message>
+                  </div>
                   <div class="step-meta">
                     <span class="step-time" [class.step-slow]="log.processingMs > 2000"><i class="fas fa-stopwatch"></i> {{ log.processingMs }}ms</span>
                     @if (log.confidence) { <span class="step-conf"><i class="fas fa-bullseye"></i> {{ (log.confidence * 100).toFixed(0) }}%</span> }
@@ -285,7 +287,9 @@
                     @if (getToolsForLog(log).length === 0) { <span class="text-muted">—</span> }
                   </div>
                 </td>
-                <td class="log-text">{{ log.outputSummary }}</td>
+                <td class="log-text">
+                  <app-agent-message [notes]="log.outputSummary"></app-agent-message>
+                </td>
                 <td><span class="mono-id" [class.slow-ms]="log.processingMs > 2000">{{ log.processingMs > 0 ? log.processingMs + 'ms' : '—' }}</span></td>
                 <td>
                   @if (log.success) { <i class="fas fa-circle-check" style="color:var(--success)"></i> }
@@ -439,7 +443,7 @@
                 <td><code class="mono-id">#{{ inc.id }}</code></td>
                 <td><span class="incident-title">{{ inc.title | slice:0:50 }}{{ inc.title.length > 50 ? '…' : '' }}</span></td>
                 <td class="text-muted">{{ inc.reporterName }}</td>
-                <td><span class="priority-badge p{{ inc.priority }}"><span class="p-dot"></span>P{{ inc.priority }}</span></td>
+                <td><span class="priority-badge p{{ inc.priority }}"><span class="p-dot"></span>{{ inc.priority }}. Seviye</span></td>
                 <td><span class="badge {{ STATUS_CLASSES[inc.status] }}">{{ STATUS_LABELS[inc.status] }}</span></td>
                 <td class="time-cell">{{ timeAgo(inc.createdAt) }}</td>
                 <td>

@@ -28,6 +28,8 @@ export interface Incident {
   latitude: number;
   longitude: number;
   district: string;
+  neighbourhood?: string;
+  street?: string;
   reporterName: string;
   photoUrl?: string;
   createdAt: string;   // ISO string from backend - use string not Date to avoid parse issues
@@ -46,19 +48,21 @@ export interface IncidentSubmission {
   latitude: number;
   longitude: number;
   district: string;
+  neighbourhood?: string;
+  street?: string;
   reporterName?: string;
   reporterEmail?: string;
 }
 
 export const CATEGORY_LABELS: Record<IncidentCategory, string> = {
-  TRAFFIC_ACCIDENT: 'Traffic Accident',
-  ROAD_DAMAGE:      'Road Damage',
-  FLOODING:         'Flooding',
-  POWER_OUTAGE:     'Power Outage',
-  FIRE_HAZARD:      'Fire Hazard',
-  VANDALISM:        'Vandalism',
-  NOISE_COMPLAINT:  'Noise Complaint',
-  OTHER:            'Other',
+  TRAFFIC_ACCIDENT: 'Trafik Kazası',
+  ROAD_DAMAGE:      'Yol Hasarı',
+  FLOODING:         'Su Baskını',
+  POWER_OUTAGE:     'Elektrik Kesintisi',
+  FIRE_HAZARD:      'Yangın Tehlikesi',
+  VANDALISM:        'Vandalizm / Tahribat',
+  NOISE_COMPLAINT:  'Gürültü Şikayeti',
+  OTHER:            'Diğer',
 };
 
 export const CATEGORY_ICONS: Record<IncidentCategory, string> = {
@@ -73,18 +77,18 @@ export const CATEGORY_ICONS: Record<IncidentCategory, string> = {
 };
 
 export const STATUS_LABELS: Record<IncidentStatus, string> = {
-  PENDING:     'Pending',
-  IN_PROGRESS: 'In Progress',
-  RESOLVED:    'Resolved',
-  CLOSED:      'Closed',
+  PENDING:     'Bekliyor',
+  IN_PROGRESS: 'İşlemde',
+  RESOLVED:    'Çözüldü',
+  CLOSED:      'Kapatıldı',
 };
 
 export const PRIORITY_LABELS: Record<IncidentPriority, string> = {
-  1: 'Minimal',
-  2: 'Low',
-  3: 'Medium',
-  4: 'High',
-  5: 'Critical',
+  1: '1. Seviye Öncelik',
+  2: '2. Seviye Öncelik',
+  3: '3. Seviye Öncelik',
+  4: '4. Seviye Öncelik',
+  5: '5. Seviye Öncelik',
 };
 
 export const PRIORITY_CLASSES: Record<IncidentPriority, string> = {

@@ -19,6 +19,8 @@ export class AuthService {
 
   // Signal initialized safely - no localStorage access during SSR
   readonly currentUser = signal<AuthUser | null>(this.loadUser());
+  readonly sessionExpired = signal<boolean>(false);
+  private isManualLogout = false;
 
   login(req: LoginRequest): Observable<ApiResponse<AuthResponse>> {
     return this.http
@@ -32,13 +34,28 @@ export class AuthService {
       .pipe(tap(res => { if (res.success) this.saveSession(res.data); }));
   }
 
+  triggerSessionExpired(): void {
+    if (!this.isManualLogout) {
+      this.sessionExpired.set(true);
+    }
+  }
+
   logout(): void {
+    this.isManualLogout = true;
+    this.executeLogout();
+  }
+
+  executeLogout(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(this.TOKEN_KEY);
       localStorage.removeItem(this.USER_KEY);
     }
     this.currentUser.set(null);
-    this.router.navigate(['/']);
+    this.sessionExpired.set(false);
+    this.router.navigate(['/auth/login']).then(() => {
+      // Reset manual logout flag after navigation completes
+      this.isManualLogout = false;
+    });
   }
 
   getToken(): string | null {

@@ -20,6 +20,8 @@ public class IncidentResponse {
     private double latitude;
     private double longitude;
     private String district;
+    private String neighbourhood;
+    private String street;
     private String photoUrl;
     private String reporterName;
     private String assignedDepartment;

@@ -29,6 +29,7 @@ spring:
       connection-test-query: SELECT 1
 
   jpa:
+    defer-datasource-initialization: true
     hibernate:
       # FIX: "update" in production can silently alter/drop columns on schema changes.
       # "validate" only checks that the schema matches the entity mapping — it never
@@ -39,7 +40,6 @@ spring:
     open-in-view: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: false
         use_sql_comments: false
         jdbc:
@@ -100,7 +100,7 @@ urbanpulse:
 ai:
   service:
     url: http://localhost:8000/api
-    secret: change_this_in_production_please
+    secret: urbanpulse-secret-2024
     monitor-interval-ms: 900000   # 15 min; override in prod via env var
   monitor:
     interval-ms: 900000   # 15 minutes — override in tests or prod

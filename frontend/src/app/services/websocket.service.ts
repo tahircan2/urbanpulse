@@ -23,6 +23,7 @@ export class WebSocketService implements OnDestroy {
   private stompClient: StompClient | null = null;
   private connected = false;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private stompSubscriptions: { unsubscribe: () => void }[] = [];
 
   // Typed subjects
   readonly newIncident$     = new Subject<Incident>();
@@ -45,7 +46,10 @@ export class WebSocketService implements OnDestroy {
             this.reconnectTimer = null;
           }
 
-          this.stompClient!.subscribe('/topic/incidents/new', (msg) => {
+          this.stompSubscriptions.forEach(sub => sub.unsubscribe());
+          this.stompSubscriptions = [];
+
+          const sub1 = this.stompClient!.subscribe('/topic/incidents/new', (msg) => {
             this.zone.run(() => {
               try {
                 this.newIncident$.next(JSON.parse(msg.body) as Incident);
@@ -53,7 +57,7 @@ export class WebSocketService implements OnDestroy {
             });
           });
 
-          this.stompClient!.subscribe('/topic/incidents/update', (msg) => {
+          const sub2 = this.stompClient!.subscribe('/topic/incidents/update', (msg) => {
             this.zone.run(() => {
               try {
                 this.updatedIncident$.next(JSON.parse(msg.body) as Incident);
@@ -61,9 +65,11 @@ export class WebSocketService implements OnDestroy {
             });
           });
 
-          this.stompClient!.subscribe('/topic/agents/activity', (msg) => {
+          const sub3 = this.stompClient!.subscribe('/topic/agents/activity', (msg) => {
             this.zone.run(() => this.agentActivity$.next(msg.body));
           });
+
+          this.stompSubscriptions.push(sub1, sub2, sub3);
         },
         () => {
           this.connected = false;
@@ -81,6 +87,8 @@ export class WebSocketService implements OnDestroy {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
+    this.stompSubscriptions.forEach(sub => sub.unsubscribe());
+    this.stompSubscriptions = [];
     if (this.stompClient && this.connected) {
       this.stompClient.disconnect(() => {
         this.connected = false;

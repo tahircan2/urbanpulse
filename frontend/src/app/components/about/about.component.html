@@ -9,7 +9,7 @@
       <h1>UrbanPulse Architecture</h1>
       <p>
         A multi-agent AI system designed for real-world smart city incident management,
-        built with Angular, Spring Boot, and LangGraph.
+        built with Angular 19, Spring Boot, CrewAI and LangGraph.
       </p>
     </div>
 
@@ -21,19 +21,19 @@
           <p>
             UrbanPulse is a smart city incident management platform that connects citizens,
             municipal departments, and an autonomous AI agent pipeline. Citizens submit
-            incident reports via a web interface; behind the scenes, three specialized AI
-            agents classify, route, and monitor every case — without manual intervention.
+            incident reports via a web interface; behind the scenes, specialized Python AI
+            agents classify, route, and monitor every case — executing intelligent workflows via CrewAI.
           </p>
           <p>
             The platform is designed as an academic showcase of multi-agent orchestration
-            using LangGraph, demonstrating how frameworks like CrewAI, AutoGen, and MCP
-            can be applied to real urban governance challenges.
+            using CrewAI and LLM-driven Input/Output Guardrails, demonstrating how robust AI integrations
+            can be flawlessly applied to real urban governance challenges securely.
           </p>
         </div>
         <div class="intro-stack">
           <div class="stack-item">
             <i class="fab fa-angular"></i>
-            <span>Angular 17</span>
+            <span>Angular 19</span>
           </div>
           <div class="stack-item">
             <i class="fas fa-leaf"></i>
@@ -41,7 +41,7 @@
           </div>
           <div class="stack-item">
             <i class="fas fa-diagram-project"></i>
-            <span>LangGraph</span>
+            <span>CrewAI</span>
           </div>
           <div class="stack-item">
             <i class="fas fa-database"></i>
@@ -57,8 +57,8 @@
         <span class="badge badge-orange">
           <i class="fas fa-robot"></i> Agent Pipeline
         </span>
-        <h2>The Three-Agent AI System</h2>
-        <p>Each agent has a clearly scoped responsibility within the LangGraph stateful pipeline.</p>
+        <h2>The Three-Agent AI System + Guardrails</h2>
+        <p>Each agent has a clearly scoped responsibility within the robust CrewAI workflow, protected by active Input/Output guardrails.</p>
       </div>
 
       <div class="agents-grid">
@@ -122,7 +122,7 @@
         <div class="arch-layer" style="--layer-color: var(--accent)">
           <div class="layer-label">Frontend</div>
           <div class="layer-content">
-            <div class="arch-box">Angular 17 SPA</div>
+            <div class="arch-box">Angular 19 SPA</div>
             <div class="arch-box">Leaflet Map</div>
             <div class="arch-box">WebSocket Client</div>
             <div class="arch-box">Report Form</div>
@@ -146,8 +146,8 @@
           <div class="layer-content">
             <div class="arch-box">Classifier Agent</div>
             <div class="arch-box">Planner Agent</div>
-            <div class="arch-box">Monitor Agent</div>
-            <div class="arch-box">FastAPI Bridge</div>
+            <div class="arch-box">CrewAI Manager</div>
+            <div class="arch-box">LLM Guardrails</div>
           </div>
         </div>
         <div class="arch-arrow"><i class="fas fa-arrows-up-down"></i> SQL / Cache</div>
@@ -187,9 +187,10 @@
             <h3>The Multi-Agent Assessment</h3>
             <p>Less than a second after the report is saved, the backend awakens the Python AI Service. Three specialized Artificial Intelligence agents read your report's text and assess its context:</p>
             <ul style="margin-top: 0.5rem; color: var(--text-muted); padding-left: 1.2rem;">
+              <li><strong>Guardrail Agent:</strong> Immediately analyzes your submission to detect prompt-injection attacks, profanity, or non-incident rambling. Discards explicitly malicious input.</li>
               <li><strong>Classifier Agent:</strong> Determines if this is a "Traffic Accident" or "Power Outage," giving it an urgency score from 1 to 5. It uses LIVE tools like searching for nearby critical infrastructure.</li>
               <li><strong>Planner Agent:</strong> Analyses the Classifier's score, finds the exact department responsible (e.g., "Water & Sewage Directorate"), and sets a strict deadline (SLA) to resolve the issue.</li>
-              <li><strong>Monitor Agent:</strong> Produces a highly confident final summary logic for the Dashboard.</li>
+              <li><strong>CrewAI Automation:</strong> Synthesizes the logical steps, ensures strict output schemas, and generates final formatted intelligence.</li>
             </ul>
           </div>
         </div>

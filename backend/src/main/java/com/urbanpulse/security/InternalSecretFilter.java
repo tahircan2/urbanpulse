@@ -33,7 +33,7 @@ public class InternalSecretFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
         // Only intercept the two AI-callback routes
-        return !(path.contains("/agent-result") || path.endsWith("/agent-logs/batch"));
+        return !(path.matches(".*/incidents/\\d+/agent-result$") || path.endsWith("/agent-logs/batch"));
     }
 
     @Override

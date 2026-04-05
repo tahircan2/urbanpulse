@@ -1,5 +1,5 @@
 # ── Build stage ───────────────────────────────────────────────────────────────
-FROM maven:3.9.6-eclipse-temurin-21 AS builder
+FROM maven:3.9.6-eclipse-temurin-19 AS builder
 
 WORKDIR /build
 
@@ -12,7 +12,7 @@ COPY src ./src
 RUN mvn package -DskipTests -q
 
 # ── Runtime stage ──────────────────────────────────────────────────────────────
-FROM eclipse-temurin:21-jre-jammy AS runtime
+FROM eclipse-temurin:19-jre-jammy AS runtime
 
 # Security: non-root user
 RUN groupadd --system spring && useradd --system --gid spring spring

@@ -28,5 +28,13 @@ public class IncidentRequest {
     @NotBlank
     private String district;
 
+    /** Mahalle — sadece GPS konum tespiti kullanıldığında dolu gelir */
+    @Size(max = 120)
+    private String neighbourhood;
+
+    /** Cadde/sokak — sadece GPS konum tespiti kullanıldığında dolu gelir */
+    @Size(max = 200)
+    private String street;
+
     private String photoUrl;
 }

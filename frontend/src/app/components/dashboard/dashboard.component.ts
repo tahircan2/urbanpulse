@@ -16,12 +16,14 @@ import { AgentLog, AGENT_LABELS, AGENT_BADGE_CLASSES, TOOL_META } from '../../mo
 import { AdminUser, DashboardStats } from '../../models/api.model';
 import { AuthService } from '../../services/auth.service';
 
+import { AgentMessageComponent } from '../agent-message/agent-message.component';
+
 type Tab = 'incidents' | 'pipeline' | 'notifications' | 'admin';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [FormsModule, RouterLink, SlicePipe, TitleCasePipe],
+  imports: [FormsModule, RouterLink, SlicePipe, TitleCasePipe, AgentMessageComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -172,6 +174,16 @@ export class DashboardComponent implements OnInit {
         this.incidentService.getDashboardStats().subscribe(r => {
           if (r.success) this.stats.set(r.data);
         });
+      });
+
+    this.ws.agentActivity$.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.incidentService.getAgentLogs(0, 100).subscribe(r => {
+          if (r.success) this.statsLogs.set(r.data.content);
+        });
+        if (this.rawLogsPage() === 1) this.loadRawLogs();
+        if (this.pipelinePage() === 1) this.loadPipelineLogs();
+        if (this.notifPage() === 1) this.loadNotifications();
       });
 
     this.destroyRef.onDestroy(() => {

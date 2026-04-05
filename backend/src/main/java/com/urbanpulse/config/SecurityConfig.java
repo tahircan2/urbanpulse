@@ -72,7 +72,6 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/departments/**").hasAnyRole("STAFF", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/agent-logs/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/agent-logs/**").hasRole("ADMIN")
                         .requestMatchers("/dashboard/**").authenticated()
                         // WebSocket
                         .requestMatchers("/ws/**").permitAll()

@@ -13,10 +13,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError(err => {
-      // Only force logout on 401 for non-auth endpoints
-      if (err.status === 401 && !PUBLIC_PATHS.some(p => req.url.includes(p))) {
-        auth.logout();
-        // logout() already navigates to '/'
+      // Only force logout on 401/403 for non-auth endpoints
+      if ((err.status === 401 || err.status === 403) && !PUBLIC_PATHS.some(p => req.url.includes(p))) {
+        auth.triggerSessionExpired();
       }
       return throwError(() => err);
     })
