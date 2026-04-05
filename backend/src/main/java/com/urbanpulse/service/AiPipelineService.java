@@ -202,6 +202,13 @@ public class AiPipelineService {
 
         saveLogs(incident, entries);
         log.info("Saved {} agent logs for incident {}", entries.size(), incidentId);
+
+        try {
+            // Notify UI so 'AI Pipeline' and 'Raw Log' tabs refresh immediately
+            wsPublisher.publishAgentActivity("New agent logs stored for Incident #" + incidentId);
+        } catch (Exception e) {
+            log.warn("WebSocket notification failed during log save: {}", e.getMessage());
+        }
     }
     // ── Helpers ───────────────────────────────────────────────────────────────
 

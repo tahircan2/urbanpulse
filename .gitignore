@@ -1,35 +1,45 @@
-# Frontend
-frontend/node_modules/
-frontend/dist/
-frontend/.angular/
-frontend/.env
+# Common Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Backend
-backend/target/
-backend/.mvn/wrapper/maven-wrapper.jar
-backend/*.log
-backend/logs/
+# OS Artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
 
-# IDE
+# IDE Settings
 .idea/
 .vscode/
 *.iml
 *.class
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Secrets — never commit
-*.env
+# Secrets / Environmental — Never Commit
+.env
+.env.*
+!.env.example
 application-prod.yml
 application-local.yml
 
-# AI Service
+# Docker
+docker-compose.override.yml
+
+# Frontend (Angular/Node)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+node_modules/
+
+# Backend (Java/Maven)
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# AI Service (Python)
 ai-service/.venv/
+ai-service/venv/
 ai-service/__pycache__/
 ai-service/.pytest_cache/
-ai-service/.env
-.venv
-
-ai-service/
+ai-service/*.egg-info/
+.venv/
+venv/

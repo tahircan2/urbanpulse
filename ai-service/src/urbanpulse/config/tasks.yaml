@@ -1,0 +1,108 @@
+classify_incident:
+  description: >
+    Classify this Antalya city incident. Call tools in order:
+    1. get_district_risk_profile  — ALWAYS first (instant, free)
+    2. get_time_risk_context      — ALWAYS (rush hour / tourist season affects priority)
+    3. get_weather_context        — for FLOODING, FIRE_HAZARD, ROAD_DAMAGE, POWER_OUTAGE, TRAFFIC_ACCIDENT
+    4. find_nearby_critical_infrastructure — if initial priority >= 3
+    5. get_location_context       — only if reported district seems wrong for coordinates
+
+    Incident:
+    - Title:                {title}
+    - Description:          {description}
+    - Category (user):      {category}
+    - Priority (user):      P{priority}
+    - District:             {district}
+    - Coords:               {latitude}, {longitude}
+    - Reporter:             {reporter_name}
+    - Consistency pre-check: {consistency_warning}
+
+    Adjustment rules (MUST apply):
+    - Life-threatening text in description              → P5
+    - Heavy rain + FLOODING                            → +2 priority
+    - Forest-risk district (Kemer, Manavgat, Serik,
+      Döşemealtı) + FIRE_HAZARD or smoke description  → minimum P5
+    - auto_escalate=true from infra tool               → P5
+    - Rush hour + TRAFFIC_ACCIDENT                     → +1
+    - Night + NOISE_COMPLAINT                          → +1
+    - Tourist season (May–Oct) + tourist zone district → +1 (infrastructure stress)
+
+    User input override policy:
+    - Do NOT blindly accept the user-selected category or priority.
+    - The description and title always take precedence.
+    - If you change the user-supplied category or priority, you MUST set
+      "override_reason" in the output JSON explaining why.
+    - If consistency_warning is non-empty, treat it as a strong signal to
+      re-evaluate the user-supplied category.
+
+    Output ONLY this JSON (no markdown, no extra text). IMPORTANT: 'reasoning' and 'override_reason' MUST be in English.
+    {"category": "<TRAFFIC_ACCIDENT|ROAD_DAMAGE|FLOODING|POWER_OUTAGE|FIRE_HAZARD|VANDALISM|NOISE_COMPLAINT|OTHER>",
+      "priority": <1-5>, "confidence": <0.0-1.0>, "reasoning": "<one sentence in English>",
+      "override_reason": "<why category/priority was changed in English, or empty string>"}
+  expected_output: >
+    Valid JSON: category, priority (1-5), confidence (0-1), reasoning (string, strictly English),
+    override_reason (string, strictly English — non-empty only when user input was overridden).
+  agent: classifier
+
+plan_response:
+  description: >
+    Plan the response for the classified incident. Context from classifier is available.
+
+    Call tools in order:
+    1. check_similar_incidents   — ALWAYS (detect systemic patterns)
+    2. get_district_risk_profile — for specialist department routing
+    3. get_time_risk_context     — weekend/holiday adds 25% to SLA
+
+    Incident:
+    - Title:    {title}
+    - District: {district}
+    - Coords:   {latitude}, {longitude}
+    - Reporter: {reporter_name} ({reporter_email})
+
+    Antalya Büyükşehir Belediyesi departments + base SLAs:
+    - Antalya Trafik Yönetim Müdürlüğü              → TRAFFIC_ACCIDENT  4h
+    - Antalya Yollar ve Altyapı Dairesi              → ROAD_DAMAGE       24h
+    - ASAT (Antalya Su ve Atıksu İdaresi)            → FLOODING          8h
+    - AEDAŞ (Antalya Elektrik Dağıtım A.Ş.)         → POWER_OUTAGE      6h
+    - Antalya İtfaiye Dairesi                        → FIRE_HAZARD       1h
+    - Antalya Zabıta ve Güvenlik Müdürlüğü           → VANDALISM         48h
+    - Antalya Çevre Sağlığı Müdürlüğü               → NOISE_COMPLAINT   72h
+    - Antalya Belediyesi Genel Hizmetler             → OTHER             72h
+
+    SPECIAL RULE — forest-risk district (Kemer, Manavgat, Serik, Döşemealtı) + FIRE_HAZARD or smoke/fire in description:
+    Department MUST be "Antalya İtfaiye Dairesi"; priority_multiplier MUST be 0.25
+    (i.e., the shortest possible SLA). Escalate immediately and notify Orman İdaresi.
+
+    TOURIST ZONE RULE — tourist_zone=true district (Muratpaşa, Alanya, Kemer, Serik, Kaş) during May–October:
+    Apply 0.75x SLA multiplier for POWER_OUTAGE and FLOODING to prioritize tourist area recovery.
+
+    SLA calculation: final_sla = base_sla × priority_multiplier × time_multiplier
+      priority_multiplier: P5=0.25x  P4=0.5x  P3=1x  P2=1.5x  P1=2x
+      time_multiplier:     weekend or public holiday = 1.25x, otherwise 1x
+    Round final_sla up to nearest integer hour (minimum 1).
+
+    If pattern_detected=true from check_similar_incidents → action_note MUST
+    include the phrase "systemic issue" (required for operations workflow).
+
+    Output ONLY this JSON (no markdown, no extra text). IMPORTANT: 'action_note' MUST be in English:
+    {"department": "<name>", "sla_hours": <int>, "action_note": "<one sentence in English>"}
+  expected_output: >
+    Valid JSON: department (string), sla_hours (int), action_note (string, strictly English).
+    action_note must contain "systemic issue" when pattern_detected=true.
+  agent: planner
+  context:
+    - classify_incident
+
+summarize_pipeline:
+  description: >
+    Write ONE sentence in English (max 150 chars) summarising the pipeline result for: {title} in {district}, Antalya.
+    Classifier and planner outputs are in your context.
+    Make it clear and professional. Example: "P5 FIRE_HAZARD routed to Antalya İtfaiye Dairesi with 1h SLA."
+    Use the exact category ENUM like TRAFFIC_ACCIDENT and abstract priority codes like P5.
+    Output ONLY the sentence — no quotes, no JSON, no preamble.
+  expected_output: >
+    A single plain English sentence under 150 characters.
+  agent: monitor
+  context:
+    - classify_incident
+    - plan_response
