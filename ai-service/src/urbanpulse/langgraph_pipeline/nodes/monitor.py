@@ -23,22 +23,28 @@ def _get_llm() -> ChatOpenAI:
 
 
 def monitor_node(state: PipelineState) -> dict:
-    """Summarise the pipeline result in a single sentence."""
+    """Summarise the pipeline result in a single concise English sentence."""
     inc = state["incident"]
     llm = _get_llm()
 
-    hum_msg = (
-        f"Summarize short pipeline action for: {inc.get('title')}. "
-        f"Dept: {state.get('department')}, SLA: {state.get('sla_hours')}"
+    # ── Role & Backstory (from agents.yaml) ───────────────────────────────────
+    backstory = (
+        "You are the UrbanPulse Pipeline Monitor. Role: Final quality-check layer for Antalya Büyükşehir Belediyesi.\n"
+        "Goal: Write a single concise sentence (max 120 chars) summarising the full AI pipeline decision.\n"
+        "IMPORTANT: Your summary output MUST be strictly in English."
+    )
+
+    # ── Task Instructions (from tasks.yaml) ───────────────────────────────────
+    task_desc = (
+        f"Write ONE sentence in English (max 120 chars) summarising the result for: {inc.get('title')}.\n"
+        f"Example: 'P5 FIRE_HAZARD routed to Antalya İtfaiye Dairesi with 1h SLA.'\n"
+        f"Use category ENUMs and priority codes like P5.\n"
+        "Output ONLY the sentence — no quotes, no preamble."
     )
 
     res = llm.invoke([
-        SystemMessage(content=(
-            "You are the Communications Monitor for the city. Write a formal, professional, and corporate "
-            "one-sentence summary in English stating that 'the relevant incident has been examined and forwarded to the relevant department for resolution'. "
-            "Do not include robotic outputs. Keep it polite, brief, and professional."
-        )),
-        HumanMessage(content=hum_msg),
+        SystemMessage(content=backstory),
+        HumanMessage(content=f"{task_desc}\n\nContext:\n- Category: {state.get('category')}\n- Priority: {state.get('priority')}\n- Dept: {state.get('department')}\n- SLA: {state.get('sla_hours')}h")
     ])
 
     return {"summary": res.content.strip()[:200]}
