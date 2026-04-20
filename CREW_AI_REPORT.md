@@ -105,13 +105,11 @@ async def process_incident(payload: dict):
 ## 7. Conclusion
 This CrewAI implementation successfully adds an autonomous layer to the UrbanPulse project. By leveraging multi-agent collaboration, the system can detect "systemic issues" (recurring patterns) and override human errors in reporting, significantly improving the reliability of city-wide emergency management.
 
-**Git URL:** https://github.com/tahircan2/urbanpulse.git
 
 ---
 
 ## 8. Visual Demonstration: AI Pipeline Dashboard
 
-*(Place your screenshot of the AI Pipeline tab here)*
 
 **Technical Explanation of the UI:**
 The screenshot above demonstrates the live integration of the **CrewAI pipeline** within the UrbanPulse Command Center. Unlike a static script, this implementation provides a reactive user experience:

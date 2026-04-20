@@ -29,10 +29,10 @@ class CoordRadiusInput(BaseModel):
     radius_m:  int   = Field(default=500, description="Search radius in metres")
 
 class DistrictInput(BaseModel):
-    district: str = Field(description="Istanbul district name in Turkish")
+    district: str = Field(description="Antalya district name in Turkish")
 
 class SimilarInput(BaseModel):
-    district:  str = Field(description="Istanbul district name")
+    district:  str = Field(description="Antalya district name")
     category:  str = Field(description="Incident category enum value")
     days_back: int = Field(default=7, description="Days to look back")
 

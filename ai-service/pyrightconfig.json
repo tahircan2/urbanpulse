@@ -1,13 +1,18 @@
 {
-  "$schema": "https://raw.githubusercontent.com/microsoft/pyright/main/packages/pyright/schemas/pyrightconfig.schema.json",
   "venvPath": ".",
   "venv": ".venv",
   "pythonVersion": "3.12",
-  "include": ["src", "app"],
-  "extraPaths": ["src", "."],
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "**/__pycache__",
+    ".venv"
+  ],
+  "extraPaths": [
+    "src"
+  ],
   "typeCheckingMode": "basic",
   "reportMissingImports": "warning",
-  "reportMissingModuleSource": "warning",
-  "reportOptionalMemberAccess": "warning",
-  "reportAttributeAccessIssue": "warning"
+  "reportMissingModuleSource": "warning"
 }

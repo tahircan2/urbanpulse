@@ -84,6 +84,10 @@ services:
       INTERNAL_SECRET: "${INTERNAL_SECRET:-change_this_in_production_please}"
       ENVIRONMENT: "production"
       LOG_LEVEL: "INFO"
+      LANGSMITH_TRACING: "${LANGSMITH_TRACING:-true}"
+      LANGSMITH_API_KEY: "${LANGSMITH_API_KEY:-}"
+      LANGSMITH_PROJECT: "${LANGSMITH_PROJECT:-urbanpulse-langgraph}"
+      LANGGRAPH_MODEL: "${LANGGRAPH_MODEL:-gpt-4o-mini}"
     ports:
       - "8000:8000"
     healthcheck:

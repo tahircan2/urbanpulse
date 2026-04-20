@@ -2,7 +2,7 @@
 from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 import httpx
-from app.core.config import get_settings
+from urbanpulse.core.config import get_settings
 
 
 def check_similar_incidents(district: str, category: str, days_back: int = 7) -> dict:

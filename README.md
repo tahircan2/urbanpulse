@@ -29,11 +29,11 @@ The project is structured around 3 main folders within an enterprise-level Monor
 - **Technologies:** Java 19, Spring Boot 3.x, Hibernate / JPA, Spring Security (JWT), Spring WebSockets, MySQL.
 - **Role:** The heart and database manager of the system. It manages business rules, handles JWT validation, pumps data to the AI Service, and instantly pushes event changes to all open screens via WebSockets.
 
-### 3. AI Service (Python & CrewAI)
+### 3. AI Service (Python, CrewAI & LangGraph)
 - **Type:** Async AI NLP Service 
-- **Technologies:** Python 3.12+, FastAPI, CrewAI, Pydantic, Gunicorn/Uvicorn.
-- **Role:** The "Brain" of the ecosystem. When Spring Boot catches a report, it sends an HTTP request to this service. Here, an autonomous team of 3 agents (Classifier, Planner, Monitor) works sequentially. It examines the incoming situation, catches manipulations and fake urgency notifications, filters them logically, and posts its decisions back to the Backend within seconds.
-- _*(For detailed information on how the agents work, check the `/ai-service/README.md` guide).*_
+- **Technologies:** Python 3.12+, FastAPI, CrewAI, LangGraph, LangSmith, Pydantic, Gunicorn/Uvicorn.
+- **Role:** The "Brain" of the ecosystem. When Spring Boot catches a report, it sends an HTTP request to this service. Here, two parallel pipelines (a free-form CrewAI multi-agent team and a deterministic LangGraph state machine) can process the incoming situation. They detect manipulation, prioritize correctly, and post decisions back to the Backend.
+- _*(For detailed information on how the agents work, check the `LANGGRAPH_REPORT.md` guide).*_
 
 ---
 
