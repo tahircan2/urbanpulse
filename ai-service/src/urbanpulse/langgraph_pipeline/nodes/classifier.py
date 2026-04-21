@@ -15,26 +15,16 @@ from urbanpulse.core.config import get_settings
 from urbanpulse.core.logging import get_logger
 from urbanpulse.langgraph_pipeline.state import PipelineState
 from urbanpulse.langgraph_pipeline.tools import LANGGRAPH_TOOLS
-from urbanpulse.langgraph_pipeline.nodes.utils import invoke_with_tools, parse_llm_json
+from urbanpulse.langgraph_pipeline.nodes.utils import invoke_with_tools, parse_llm_json, get_llm
 
 logger = get_logger(__name__)
-
-def _get_llm() -> ChatOpenAI:
-    s = get_settings()
-    return ChatOpenAI(
-        model=s.langgraph_model,
-        api_key=s.openai_api_key,
-        temperature=0,
-        max_tokens=1024,
-    )
-
 
 def classify_node(state: PipelineState) -> dict:
     """Classify the incident using rich Antalya-specific instructions and tools."""
     inc = state["incident"]
     logger.info("node_start", node="classifier", incident_id=inc.get("id"))
     s = get_settings()
-    llm = _get_llm()
+    llm = get_llm(max_tokens=1024)
 
     # ── Role & Backstory (from agents.yaml) ───────────────────────────────────
     backstory = (

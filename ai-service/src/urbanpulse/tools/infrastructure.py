@@ -26,7 +26,7 @@ def find_nearby_critical_infrastructure(latitude: float, longitude: float, radiu
         f");\nout body;\n"
     )
     try:
-        with httpx.Client(timeout=6.0) as client:
+        with httpx.Client(timeout=12.0) as client:
             resp = client.post(OVERPASS_URL, data={"data": query},
                                headers={"User-Agent": "UrbanPulse/3.0"})
             resp.raise_for_status()

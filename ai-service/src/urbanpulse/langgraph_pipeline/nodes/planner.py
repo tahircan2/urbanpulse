@@ -14,19 +14,9 @@ from urbanpulse.core.config import get_settings
 from urbanpulse.core.logging import get_logger
 from urbanpulse.langgraph_pipeline.state import PipelineState
 from urbanpulse.langgraph_pipeline.tools import LANGGRAPH_TOOLS
-from urbanpulse.langgraph_pipeline.nodes.utils import invoke_with_tools, parse_llm_json
+from urbanpulse.langgraph_pipeline.nodes.utils import invoke_with_tools, parse_llm_json, get_llm
 
 logger = get_logger(__name__)
-
-def _get_llm() -> ChatOpenAI:
-    s = get_settings()
-    return ChatOpenAI(
-        model=s.langgraph_model,
-        api_key=s.openai_api_key,
-        temperature=0,
-        max_tokens=1024,
-    )
-
 
 def plan_node(state: PipelineState) -> dict:
     """Plan response using rich Antalya-specific instructions and tools."""
@@ -34,7 +24,7 @@ def plan_node(state: PipelineState) -> dict:
     logger.info("node_start", node="planner", incident_id=inc.get("id"))
     cat = state.get("category", "OTHER")
     s = get_settings()
-    llm = _get_llm()
+    llm = get_llm(max_tokens=1024)
 
     # ── Role & Backstory (from agents.yaml) ───────────────────────────────────
     backstory = (
@@ -43,7 +33,8 @@ def plan_node(state: PipelineState) -> dict:
         "Antalya context: You have 15 years experience routing incidents. You treat recurring incidents as systemic issues.\n"
         "Special Forest Rule: Districts like Kemer, Manavgat, Serik, Döşemealtı + FIRE/smoke → MUST be 'Antalya İtfaiye Dairesi' "
         "with minimum P5 and 0.25x SLA multiplier.\n"
-        "Tourist Zone Rule: Muratpaşa, Alanya, Kemer, Serik, Kaş during May–October → 0.75x SLA multiplier for POWER_OUTAGE and FLOODING."
+        "Tourist Zone Rule: Muratpaşa, Alanya, Kemer, Serik, Kaş during May–October → 0.75x SLA multiplier for POWER_OUTAGE and FLOODING.\n"
+        "CRITICAL: Always read the Classifier's reasoning and override reasons carefully before planning."
     )
 
     # ── Task Instructions (from tasks.yaml) ───────────────────────────────────
@@ -69,12 +60,16 @@ def plan_node(state: PipelineState) -> dict:
 
     hum_msg = (
         f"{task_desc}\n\n"
-        f"Incident Context:\n"
-        f"- Title: {inc.get('title')}\n"
-        f"- Description: {inc.get('description')}\n"
-        f"- Category: {cat}\n"
-        f"- Priority: P{state.get('priority')}\n"
-        f"- District: {inc.get('district')}\n\n"
+        f"--- PREVIOUS AGENT (CLASSIFIER) DECISION ---\n"
+        f"Category: {cat}\n"
+        f"Priority: P{state.get('priority')}\n"
+        f"Confidence: {state.get('confidence')}\n"
+        f"Reasoning: {state.get('reasoning')}\n"
+        f"Override Reason: {state.get('override_reason', 'None')}\n\n"
+        f"--- RAW INCIDENT DATA ---\n"
+        f"Title: {inc.get('title')}\n"
+        f"Description: {inc.get('description')}\n"
+        f"District: {inc.get('district')}\n\n"
         "Output ONLY JSON: "
         '{"department": str, "sla_hours": int, "action_note": str}'
     )

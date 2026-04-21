@@ -16,6 +16,16 @@ from urbanpulse.core.logging import get_logger
 
 logger = get_logger(__name__)
 
+def get_llm(temperature: float = 0.0, max_tokens: int = 1024) -> ChatOpenAI:
+    """Create and return a configured ChatOpenAI instance."""
+    s = get_settings()
+    return ChatOpenAI(
+        model=s.langgraph_model,
+        api_key=s.openai_api_key,
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
+
 
 def invoke_with_tools(
     llm: ChatOpenAI,
