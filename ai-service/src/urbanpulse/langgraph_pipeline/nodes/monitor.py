@@ -9,8 +9,10 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 
 from urbanpulse.core.config import get_settings
+from urbanpulse.core.logging import get_logger
 from urbanpulse.langgraph_pipeline.state import PipelineState
 
+logger = get_logger(__name__)
 
 def _get_llm() -> ChatOpenAI:
     s = get_settings()
@@ -25,6 +27,7 @@ def _get_llm() -> ChatOpenAI:
 def monitor_node(state: PipelineState) -> dict:
     """Summarise the pipeline result in a single concise English sentence."""
     inc = state["incident"]
+    logger.info("node_start", node="monitor", incident_id=inc.get("id"))
     llm = _get_llm()
 
     # ── Role & Backstory (from agents.yaml) ───────────────────────────────────

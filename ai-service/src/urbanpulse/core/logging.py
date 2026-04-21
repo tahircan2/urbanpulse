@@ -30,7 +30,23 @@ def setup_logging() -> None:
         logger_factory=structlog.stdlib.LoggerFactory(),
         cache_logger_on_first_use=True,
     )
-    logging.basicConfig(format="%(message)s", stream=sys.stdout, level=log_level)
+    
+    # Clear existing handlers (e.g. from Uvicorn)
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+        
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    
+    logging.root.addHandler(handler)
+    logging.root.setLevel(log_level)
+    
+    # Explicitly ensure our package logs at INFO
+    logging.getLogger("urbanpulse").setLevel(log_level)
+    
+    # Silence noisy loggers
+    logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
+    logging.getLogger("watchfiles").setLevel(logging.WARNING)
 
 
 def get_logger(name: str = __name__) -> structlog.BoundLogger:

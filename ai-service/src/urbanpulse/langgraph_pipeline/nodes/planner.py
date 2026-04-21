@@ -11,10 +11,12 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 
 from urbanpulse.core.config import get_settings
+from urbanpulse.core.logging import get_logger
 from urbanpulse.langgraph_pipeline.state import PipelineState
 from urbanpulse.langgraph_pipeline.tools import LANGGRAPH_TOOLS
 from urbanpulse.langgraph_pipeline.nodes.utils import invoke_with_tools, parse_llm_json
 
+logger = get_logger(__name__)
 
 def _get_llm() -> ChatOpenAI:
     s = get_settings()
@@ -29,6 +31,7 @@ def _get_llm() -> ChatOpenAI:
 def plan_node(state: PipelineState) -> dict:
     """Plan response using rich Antalya-specific instructions and tools."""
     inc = state["incident"]
+    logger.info("node_start", node="planner", incident_id=inc.get("id"))
     cat = state.get("category", "OTHER")
     s = get_settings()
     llm = _get_llm()

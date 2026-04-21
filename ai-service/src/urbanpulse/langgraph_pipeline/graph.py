@@ -74,20 +74,17 @@ def input_guard_node(state: PipelineState) -> dict:
     }
 
 
+from urbanpulse.guardrails.output_guard import check_output_guard
+
 def output_guard_node(state: PipelineState) -> dict:
     """Verify AI output safety before returning."""
     notes = " | ".join(
         filter(None, [state.get("reasoning"), state.get("action_note"), state.get("summary")])
     )[:500]
-    llm = _get_llm()
+    
+    is_safe, reason, tokens = check_output_guard(notes)
 
-    res = llm.invoke([
-        SystemMessage(content="Safety guard. Check output."),
-        HumanMessage(content=f'Check: {notes}\nFormat JSON: {{"safe": true}}'),
-    ])
-    data = _parse_json(res.content)
-
-    if not data.get("safe", True):
+    if not is_safe:
         return {
             "output_safe": False,
             "agent_notes": "Sistem Güvenlik Uyarısı: Çıktı gizlendi.",
