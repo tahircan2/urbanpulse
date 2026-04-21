@@ -55,7 +55,8 @@ def plan_node(state: PipelineState) -> dict:
         "SLA CALCULATION: base_sla × priority_mult × time_mult\n"
         "- priority_mult: P5=0.25x, P4=0.5x, P3=1x, P2=1.5x, P1=2x\n"
         "- time_mult: weekend/holiday = 1.25x\n"
-        "Round up to nearest integer hour. If pattern_detected=true → include 'systemic issue' in action_note."
+        "Round up to nearest integer hour. If pattern_detected=true → include 'systemic issue' in action_note.\n"
+        "IMPORTANT: The 'action_note' MUST be a concrete, descriptive action plan detailing how the department will intervene (e.g., 'Fire department units dispatched for immediate area containment'). NEVER write generic phrases like 'treat as isolated'."
     )
 
     hum_msg = (

@@ -52,6 +52,7 @@ def classify_node(state: PipelineState) -> dict:
         "- Forest-risk district (Kemer, Manavgat, Serik, Döşemealtı) + FIRE_HAZARD/smoke → minimum P5\n"
         "- Rush hour + TRAFFIC_ACCIDENT → +1\n"
         "- tourist_zone=true + Tourist season (May–Oct) → +1 (infrastructure stress)\n"
+        "IMPORTANT: Your 'reasoning' MUST be a clear, user-friendly English sentence explaining why this priority/category was chosen. Do not use system logs or variable names in the text."
     )
 
     hum_msg = (

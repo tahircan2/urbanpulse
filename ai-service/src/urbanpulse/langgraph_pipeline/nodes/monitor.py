@@ -32,8 +32,9 @@ def monitor_node(state: PipelineState) -> dict:
     # ── Task Instructions (from tasks.yaml) ───────────────────────────────────
     task_desc = (
         f"Write ONE sentence in English (max 120 chars) summarising the result for: {inc.get('title')}.\n"
-        f"Example: 'P5 FIRE_HAZARD routed to Antalya İtfaiye Dairesi with 1h SLA due to critical forest risk.'\n"
-        f"Use category ENUMs and priority codes like P5.\n"
+        f"IMPORTANT: Write a natural, user-friendly executive summary, not a robotic system log.\n"
+        f"GOOD Example: 'Fire department units are dispatched with a 1-hour target response time due to critical forest fire risks.'\n"
+        f"BAD Example: 'P5 FIRE_HAZARD routed to Antalya İtfaiye Dairesi with 1h SLA due to critical forest risk.'\n"
         "Output ONLY the sentence — no quotes, no preamble."
     )
 
