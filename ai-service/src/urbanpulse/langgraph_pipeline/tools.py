@@ -1,12 +1,33 @@
 """
-urbanpulse.langgraph_pipeline.tools — LangChain @tool wrappers.
+urbanpulse.langgraph_pipeline.tools — LangChain @tool wrappers (Dual Mode).
 
-These tools reuse the core logic from urbanpulse/tools/ while adhering
-to standard LangChain functional tool patterns.
+This module operates in two modes:
+    1. DIRECT MODE (default fallback):
+       Tools are imported directly from urbanpulse.tools.* and wrapped
+       with @tool decorators. This is the original approach — fast and simple.
+
+    2. MCP MODE (when MCP client is connected):
+       Tools are dynamically discovered from the MCP Server via the
+       Model Context Protocol. Each tool call goes through:
+       LangGraph → MCP Client → stdio → MCP Server → urbanpulse.tools.*
+
+The active mode is determined at runtime by checking the MCP client
+connection state. This dual-mode approach allows:
+    - Graceful fallback if MCP server is unavailable
+    - Side-by-side comparison for demonstration purposes
+    - Zero downtime during MCP integration
 """
 import json
 from langchain_core.tools import tool
 
+from urbanpulse.core.logging import get_logger
+
+logger = get_logger(__name__)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# DIRECT MODE TOOLS (Original — framework-native LangChain wrappers)
+# ══════════════════════════════════════════════════════════════════════════════
 
 @tool
 def weather_context_tool(latitude: float, longitude: float) -> str:
@@ -69,8 +90,8 @@ def similar_incidents_tool(district: str, category: str, days_back: int = 7) -> 
     return json.dumps(check_similar_incidents(district, category, days_back))
 
 
-# ── Tool List ─────────────────────────────────────────────────────────────────
-LANGGRAPH_TOOLS = [
+# ── Direct Mode Tool List ─────────────────────────────────────────────────────
+DIRECT_TOOLS = [
     weather_context_tool,
     district_risk_tool,
     time_context_tool,
@@ -78,3 +99,55 @@ LANGGRAPH_TOOLS = [
     geolocation_tool,
     similar_incidents_tool,
 ]
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# DUAL MODE RESOLVER
+# ══════════════════════════════════════════════════════════════════════════════
+
+def get_active_tools(prefer_mcp: bool = True) -> tuple[list, str]:
+    """
+    Resolve the active tool list based on MCP connection state.
+
+    Args:
+        prefer_mcp: If True, use MCP tools when available. If False, always use direct.
+
+    Returns:
+        Tuple of (tool_list, mode_label) where mode_label is 'mcp' or 'direct'.
+    """
+    if prefer_mcp:
+        try:
+            from urbanpulse.mcp_client.manager import get_mcp_manager
+            manager = get_mcp_manager()
+
+            if manager.is_connected:
+                from urbanpulse.mcp_client.adapter import build_mcp_langchain_tools
+                mcp_tools = build_mcp_langchain_tools()
+
+                if mcp_tools:
+                    logger.info(
+                        "tools_mode_resolved",
+                        mode="mcp",
+                        count=len(mcp_tools),
+                        tools=[t.name for t in mcp_tools],
+                    )
+                    return mcp_tools, "mcp"
+
+                logger.warning("mcp_tools_empty_fallback_to_direct")
+
+        except ImportError:
+            logger.debug("mcp_package_not_available_using_direct")
+        except Exception as exc:
+            logger.warning("mcp_tools_error_fallback", error=str(exc))
+
+    logger.info(
+        "tools_mode_resolved",
+        mode="direct",
+        count=len(DIRECT_TOOLS),
+    )
+    return DIRECT_TOOLS, "direct"
+
+
+# ── Legacy Compatibility ──────────────────────────────────────────────────────
+# LANGGRAPH_TOOLS is kept for backward compatibility with existing node imports
+LANGGRAPH_TOOLS = DIRECT_TOOLS

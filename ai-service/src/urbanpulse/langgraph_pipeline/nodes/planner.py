@@ -2,6 +2,7 @@
 urbanpulse.langgraph_pipeline.nodes.planner — Response planning node.
 
 Assigns department and SLA based on classification results.
+Uses MCP or direct tools for contextual enrichment (dual-mode support).
 """
 from __future__ import annotations
 
@@ -13,8 +14,7 @@ from langchain_openai import ChatOpenAI
 from urbanpulse.core.config import get_settings
 from urbanpulse.core.logging import get_logger
 from urbanpulse.langgraph_pipeline.state import PipelineState
-from urbanpulse.langgraph_pipeline.tools import LANGGRAPH_TOOLS
-from urbanpulse.langgraph_pipeline.nodes.utils import invoke_with_tools, parse_llm_json, get_llm
+from urbanpulse.langgraph_pipeline.nodes.utils import invoke_with_tools, parse_llm_json, get_llm, get_active_tool_list
 
 logger = get_logger(__name__)
 
@@ -25,6 +25,10 @@ def plan_node(state: PipelineState) -> dict:
     cat = state.get("category", "OTHER")
     s = get_settings()
     llm = get_llm(max_tokens=1024)
+
+    # ── Resolve active tools (MCP or Direct) ──────────────────────────────
+    tools, tool_mode = get_active_tool_list()
+    logger.info("planner_tools_resolved", mode=tool_mode, count=len(tools))
 
     # ── Role & Backstory (from agents.yaml) ───────────────────────────────────
     backstory = (
@@ -78,7 +82,7 @@ def plan_node(state: PipelineState) -> dict:
     content = invoke_with_tools(
         llm=llm,
         messages=[SystemMessage(content=backstory), HumanMessage(content=hum_msg)],
-        tools=LANGGRAPH_TOOLS,
+        tools=tools,
         max_rounds=s.tool_max_rounds
     )
     

@@ -1,0 +1,439 @@
+<div class="mcp-page">
+  <div class="container">
+
+    <!-- ── Hero Header ── -->
+    <div class="mcp-hero">
+      <div class="hero-left">
+        <span class="badge badge-cyan"><i class="fas fa-network-wired"></i> Model Context Protocol</span>
+        <h1>MCP Architecture <span class="accent-text">Flow</span></h1>
+        <p class="hero-desc">
+          Bir incident geldiğinde UrbanPulse'un MCP katmanları üzerinden nasıl aktığını,
+          Host → Client → Transport → Server akışını ve tool calling mekanizmasını canlı izleyin.
+        </p>
+      </div>
+      <div class="hero-right">
+        <div class="conn-status-card" [class.connected]="isConnected()" [class.error]="connectionState() === 'error'">
+          <div class="conn-icon-wrap">
+            <i class="fas" [ngClass]="getConnectionIcon()" [style.color]="getConnectionColor()"></i>
+          </div>
+          <div class="conn-info">
+            <span class="conn-label">MCP Server</span>
+            <span class="conn-state" [style.color]="getConnectionColor()">{{ connectionState() | uppercase }}</span>
+          </div>
+          @if (isConnected()) {
+            <div class="conn-uptime">
+              <i class="fas fa-clock"></i> {{ uptimeFormatted() }}
+            </div>
+          }
+          <button class="btn btn-sm btn-outline conn-action" (click)="isConnected() ? refreshData() : reconnect()">
+            <i class="fas" [class.fa-rotate-right]="isConnected()" [class.fa-plug]="!isConnected()"></i>
+            {{ isConnected() ? 'Refresh' : 'Connect' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Telemetry Stats ── -->
+    @if (status()) {
+      <div class="mcp-telemetry">
+        <div class="telem-card">
+          <div class="telem-icon"><i class="fas fa-plug"></i></div>
+          <div class="telem-body">
+            <span class="telem-val" [style.color]="getConnectionColor()">{{ connectionState() }}</span>
+            <span class="telem-lbl">Connection</span>
+          </div>
+        </div>
+        <div class="telem-card">
+          <div class="telem-icon purple"><i class="fas fa-wrench"></i></div>
+          <div class="telem-body">
+            <span class="telem-val purple">{{ status()!.tools.discovered_count }}</span>
+            <span class="telem-lbl">Tools Discovered</span>
+          </div>
+        </div>
+        <div class="telem-card">
+          <div class="telem-icon green"><i class="fas fa-paper-plane"></i></div>
+          <div class="telem-body">
+            <span class="telem-val green">{{ status()!.telemetry.total_calls }}</span>
+            <span class="telem-lbl">Total Calls</span>
+          </div>
+        </div>
+        <div class="telem-card">
+          <div class="telem-icon orange"><i class="fas fa-circle-xmark"></i></div>
+          <div class="telem-body">
+            <span class="telem-val orange">{{ status()!.telemetry.failed_calls }}</span>
+            <span class="telem-lbl">Failed</span>
+          </div>
+        </div>
+        <div class="telem-card">
+          <div class="telem-icon lime"><i class="fas fa-percent"></i></div>
+          <div class="telem-body">
+            <span class="telem-val lime">{{ status()!.telemetry.success_rate_pct }}<small>%</small></span>
+            <span class="telem-lbl">Success Rate</span>
+          </div>
+        </div>
+        <div class="telem-card">
+          <div class="telem-icon teal"><i class="fas fa-bolt"></i></div>
+          <div class="telem-body">
+            <span class="telem-val teal">{{ status()!.telemetry.avg_latency_ms }}<small>ms</small></span>
+            <span class="telem-lbl">Avg Latency</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ── Section Tabs ── -->
+    <div class="mcp-tabs">
+      <button class="tab-btn" [class.active]="activeSection() === 'overview'" (click)="setSection('overview')">
+        <i class="fas fa-diagram-project"></i> Architecture Flow
+      </button>
+      <button class="tab-btn" [class.active]="activeSection() === 'tools'" (click)="setSection('tools')">
+        <i class="fas fa-wrench"></i> Tool Discovery
+        @if (toolsList().length > 0) { <span class="tab-count">{{ toolsList().length }}</span> }
+      </button>
+      <button class="tab-btn" [class.active]="activeSection() === 'history'" (click)="setSection('history')">
+        <i class="fas fa-clock-rotate-left"></i> Call History
+        @if (historyRecords().length > 0) { <span class="tab-count">{{ historyRecords().length }}</span> }
+      </button>
+      <button class="tab-btn" [class.active]="activeSection() === 'protocol'" (click)="setSection('protocol')">
+        <i class="fas fa-code"></i> JSON-RPC Protocol
+      </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- SECTION: ARCHITECTURE FLOW                                           -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    @if (activeSection() === 'overview') {
+      <div class="flow-section">
+
+        <!-- Simulate button -->
+        <div class="flow-controls">
+          <button class="btn btn-primary btn-lg simulate-btn" (click)="startFlowAnimation()" [disabled]="isAnimating()">
+            <i class="fas" [class.fa-play]="!isAnimating()" [class.fa-spinner]="isAnimating()" [class.fa-spin]="isAnimating()"></i>
+            {{ isAnimating() ? 'Simulating…' : animationPhase() === 'complete' ? '✓ Complete — Replay' : 'Simulate Incident Flow' }}
+          </button>
+          <span class="flow-hint">
+            <i class="fas fa-info-circle"></i>
+            Bir incident gönderildiğinde MCP katmanları arasındaki veri akışını gözlemleyin
+          </span>
+        </div>
+
+        <!-- Layer Groups -->
+        @for (layerKey of ['host', 'client', 'transport', 'server']; track layerKey) {
+          <div class="layer-group" [style.--layer-color]="getLayerColor(layerKey)">
+            <div class="layer-header">
+              <div class="layer-badge" [style.background]="getLayerColor(layerKey) + '18'" [style.border-color]="getLayerColor(layerKey) + '35'" [style.color]="getLayerColor(layerKey)">
+                {{ getLayerLabel(layerKey) }}
+              </div>
+              <span class="layer-desc">{{ getLayerDesc(layerKey) }}</span>
+            </div>
+            <div class="layer-steps">
+              @for (step of layers()[layerKey]; track step.id) {
+                <div class="flow-node"
+                     [class.active]="activeStepIndex() === flowSteps.indexOf(step)"
+                     [class.passed]="activeStepIndex() > flowSteps.indexOf(step)"
+                     [class.pending]="activeStepIndex() < flowSteps.indexOf(step) && isAnimating()"
+                     [style.--node-color]="step.color">
+                  <div class="node-icon-wrap">
+                    <i class="fas {{ step.icon }}"></i>
+                    @if (activeStepIndex() === flowSteps.indexOf(step)) {
+                      <div class="pulse-ring"></div>
+                    }
+                  </div>
+                  <div class="node-info">
+                    <span class="node-label">{{ step.label }}</span>
+                    <span class="node-sublabel">{{ step.sublabel }}</span>
+                  </div>
+                  @if (activeStepIndex() === flowSteps.indexOf(step)) {
+                    <div class="node-active-badge">
+                      <i class="fas fa-bolt"></i> ACTIVE
+                    </div>
+                  }
+                  @if (activeStepIndex() > flowSteps.indexOf(step)) {
+                    <div class="node-passed-badge">
+                      <i class="fas fa-check"></i>
+                    </div>
+                  }
+                </div>
+                <!-- Arrow between steps within same layer -->
+                @if (!$last) {
+                  <div class="intra-arrow" [class.active]="activeStepIndex() > flowSteps.indexOf(step)">
+                    <i class="fas fa-arrow-right"></i>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+          <!-- Arrow between layers -->
+          @if (layerKey !== 'server') {
+            <div class="inter-layer-arrow" [class.active]="activeStepIndex() >= (layers()[layerKey] ? layers()[layerKey].length : 0)">
+              <div class="arrow-line"></div>
+              <i class="fas fa-chevron-down"></i>
+              <div class="arrow-line"></div>
+            </div>
+          }
+        }
+
+        <!-- MCP Architecture Legend -->
+        <div class="arch-legend card">
+          <h3><i class="fas fa-layer-group"></i> MCP Architecture Layers</h3>
+          <div class="legend-grid">
+            @for (layerKey of ['host', 'client', 'transport', 'server']; track layerKey) {
+              <div class="legend-item">
+                <div class="legend-dot" [style.background]="getLayerColor(layerKey)"></div>
+                <div class="legend-text">
+                  <span class="legend-title" [style.color]="getLayerColor(layerKey)">{{ getLayerLabel(layerKey) }}</span>
+                  <span class="legend-desc">{{ getLayerDesc(layerKey) }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- SECTION: TOOL DISCOVERY                                              -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    @if (activeSection() === 'tools') {
+      <div class="tools-section">
+        <div class="tools-intro card">
+          <div class="tools-intro-header">
+            <h3><i class="fas fa-search"></i> MCP Tool Discovery</h3>
+            <span class="badge badge-green"><i class="fas fa-plug"></i> tools/list</span>
+          </div>
+          <p>
+            MCP Client, sunucuya bağlandığında <code>tools/list</code> JSON-RPC mesajı gönderir.
+            Server, mevcut tüm tool'ları input schema'larıyla birlikte döndürür.
+            LangGraph pipeline bu tool'ları dinamik olarak LangChain StructuredTool'lara dönüştürür.
+          </p>
+        </div>
+
+        <div class="tools-grid">
+          @for (tool of toolsList(); track tool.name) {
+            <div class="tool-card card" 
+                 [class.selected]="selectedTool()?.name === tool.name"
+                 (click)="selectTool(tool)"
+                 [style.--tc]="getToolMeta(tool.name).color">
+              <div class="tool-card-header">
+                <div class="tool-icon-lg">
+                  <i class="fas {{ getToolMeta(tool.name).icon }}"></i>
+                </div>
+                <div class="tool-name-wrap">
+                  <span class="tool-display-name">{{ getToolMeta(tool.name).label }}</span>
+                  <code class="tool-fn-name">{{ tool.name }}</code>
+                </div>
+              </div>
+              <p class="tool-desc">{{ tool.description | slice:0:120 }}{{ tool.description.length > 120 ? '…' : '' }}</p>
+
+              @if (selectedTool()?.name === tool.name) {
+                <div class="tool-detail">
+                  <div class="tool-schema-header">
+                    <span class="badge badge-cyan"><i class="fas fa-code"></i> Input Schema</span>
+                  </div>
+                  <pre class="tool-schema-code">{{ tool.input_schema | json }}</pre>
+
+                  @if (tool.input_schema.properties) {
+                    <div class="tool-params">
+                      <span class="params-title">Parameters</span>
+                      @for (param of objectKeys(tool.input_schema.properties); track param) {
+                        <div class="param-row">
+                          <code class="param-name">{{ param }}</code>
+                          <span class="param-type">{{ tool.input_schema.properties![param].type }}</span>
+                          @if (tool.input_schema.required?.includes(param)) {
+                            <span class="param-required">required</span>
+                          }
+                          @if (tool.input_schema.properties![param].description) {
+                            <span class="param-desc">{{ tool.input_schema.properties![param].description }}</span>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        @if (toolsList().length === 0) {
+          <div class="empty-state-box">
+            <i class="fas fa-wrench"></i>
+            <p>MCP Server'a bağlı değil veya tool bulunamadı.</p>
+            <button class="btn btn-outline" (click)="reconnect()"><i class="fas fa-plug"></i> Connect</button>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- SECTION: CALL HISTORY                                                -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    @if (activeSection() === 'history') {
+      <div class="history-section">
+        <div class="table-wrapper card">
+          <div class="history-header">
+            <h3><i class="fas fa-clock-rotate-left"></i> MCP Tool Call History</h3>
+            <div class="history-meta">
+              @if (history()) {
+                <span class="badge badge-cyan">{{ history()!.total_in_buffer }} in buffer</span>
+              }
+              <div class="live-indicator"><span class="status-dot live"></span> Live</div>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Tool</th>
+                <th>Arguments</th>
+                <th>Result Preview</th>
+                <th>Duration</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (rec of historyRecords(); track rec.timestamp) {
+                <tr [class.log-error]="!rec.success"
+                    [class.selected-row]="selectedRecord()?.timestamp === rec.timestamp"
+                    (click)="selectRecord(rec)">
+                  <td class="time-cell">{{ formatTime(rec.timestamp) }}</td>
+                  <td>
+                    <div class="tool-cell">
+                      <span class="mini-tool" [style.--tc]="getToolMeta(rec.tool_name).color">
+                        <i class="fas {{ getToolMeta(rec.tool_name).icon }}"></i>
+                      </span>
+                      <span class="tool-label-text">{{ getToolMeta(rec.tool_name).label }}</span>
+                    </div>
+                  </td>
+                  <td class="args-cell">
+                    <code class="args-preview">{{ (rec.arguments | json).slice(0, 50) }}{{ (rec.arguments | json).length > 50 ? '…' : '' }}</code>
+                  </td>
+                  <td class="result-cell">
+                    <span class="result-preview">{{ rec.result_preview.slice(0, 60) }}{{ rec.result_preview.length > 60 ? '…' : '' }}</span>
+                  </td>
+                  <td>
+                    <span class="duration-badge" [class.slow]="rec.duration_ms > 2000">
+                      {{ rec.duration_ms }}ms
+                    </span>
+                  </td>
+                  <td>
+                    @if (rec.success) {
+                      <i class="fas fa-circle-check" style="color:var(--success)"></i>
+                    } @else {
+                      <i class="fas fa-circle-xmark" style="color:var(--danger)"></i>
+                    }
+                  </td>
+                </tr>
+              }
+              @if (historyRecords().length === 0) {
+                <tr><td colspan="6" class="empty-state"><i class="fas fa-inbox"></i><span>No MCP tool calls recorded yet</span></td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Detail panel for selected record -->
+        @if (selectedRecord()) {
+          <div class="record-detail card">
+            <div class="rd-header">
+              <div class="tool-cell">
+                <span class="mini-tool lg" [style.--tc]="getToolMeta(selectedRecord()!.tool_name).color">
+                  <i class="fas {{ getToolMeta(selectedRecord()!.tool_name).icon }}"></i>
+                </span>
+                <div>
+                  <span class="rd-tool-name">{{ getToolMeta(selectedRecord()!.tool_name).label }}</span>
+                  <code class="rd-fn-name">{{ selectedRecord()!.tool_name }}</code>
+                </div>
+              </div>
+              <div class="rd-meta">
+                <span class="duration-badge" [class.slow]="selectedRecord()!.duration_ms > 2000">
+                  <i class="fas fa-stopwatch"></i> {{ selectedRecord()!.duration_ms }}ms
+                </span>
+                @if (selectedRecord()!.success) {
+                  <span class="badge badge-green"><i class="fas fa-check"></i> Success</span>
+                } @else {
+                  <span class="badge badge-red"><i class="fas fa-xmark"></i> Failed</span>
+                }
+              </div>
+            </div>
+            <div class="rd-sections">
+              <div class="rd-block">
+                <span class="rd-block-label"><i class="fas fa-arrow-right-to-bracket"></i> Arguments (Request)</span>
+                <pre class="rd-code">{{ selectedRecord()!.arguments | json }}</pre>
+              </div>
+              <div class="rd-block">
+                <span class="rd-block-label"><i class="fas fa-arrow-right-from-bracket"></i> Result Preview (Response)</span>
+                <pre class="rd-code">{{ selectedRecord()!.result_preview }}</pre>
+              </div>
+              @if (selectedRecord()!.error) {
+                <div class="rd-block error">
+                  <span class="rd-block-label"><i class="fas fa-triangle-exclamation"></i> Error</span>
+                  <pre class="rd-code error-text">{{ selectedRecord()!.error }}</pre>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- SECTION: JSON-RPC PROTOCOL                                           -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    @if (activeSection() === 'protocol') {
+      <div class="protocol-section">
+        <div class="protocol-intro card">
+          <h3><i class="fas fa-code"></i> JSON-RPC 2.0 Protocol Flow</h3>
+          <p>
+            MCP, JSON-RPC 2.0 standardını kullanır. Client ve Server arasındaki tüm iletişim
+            <code>stdin</code>/<code>stdout</code> üzerinden yapısal JSON mesajlarıyla gerçekleşir.
+            Aşağıda gerçek tool çağrılarından üretilmiş örnek mesajları inceleyebilirsiniz.
+          </p>
+        </div>
+
+        <div class="protocol-flow">
+          <div class="proto-parties">
+            <div class="proto-party client-party">
+              <i class="fas fa-laptop-code"></i>
+              <span>MCP Client</span>
+            </div>
+            <div class="proto-wire">
+              <span>stdio (stdin/stdout)</span>
+            </div>
+            <div class="proto-party server-party">
+              <i class="fas fa-server"></i>
+              <span>MCP Server</span>
+            </div>
+          </div>
+
+          @for (msg of protocolMessages(); track $index) {
+            <div class="proto-message" [class.request]="msg.direction === 'request'" [class.response]="msg.direction === 'response'">
+              <div class="proto-arrow-col">
+                <div class="proto-dot" [class.req-dot]="msg.direction === 'request'" [class.res-dot]="msg.direction === 'response'"></div>
+                <div class="proto-line"></div>
+                <div class="proto-arrow-icon">
+                  @if (msg.direction === 'request') {
+                    <i class="fas fa-arrow-right"></i>
+                  } @else {
+                    <i class="fas fa-arrow-left"></i>
+                  }
+                </div>
+              </div>
+              <div class="proto-body">
+                <div class="proto-msg-header">
+                  <span class="proto-dir-badge" [class.req-badge]="msg.direction === 'request'" [class.res-badge]="msg.direction === 'response'">
+                    {{ msg.direction === 'request' ? '→ REQUEST' : '← RESPONSE' }}
+                  </span>
+                  <code class="proto-method">{{ msg.label }}</code>
+                </div>
+                <p class="proto-desc">{{ msg.description }}</p>
+                <pre class="proto-json">{{ msg.json }}</pre>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

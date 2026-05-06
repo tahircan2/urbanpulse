@@ -29,6 +29,13 @@ export const routes: Routes = [
     title: 'Dashboard — UrbanPulse',
   },
   {
+    path: 'mcp-flow',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/mcp-flow/mcp-flow.component').then(m => m.McpFlowComponent),
+    title: 'MCP Architecture Flow — UrbanPulse',
+  },
+  {
     path: 'about',
     loadComponent: () =>
       import('./components/about/about.component').then(m => m.AboutComponent),

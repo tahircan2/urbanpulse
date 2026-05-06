@@ -35,6 +35,7 @@ export class NavbarComponent implements OnInit {
     { path: '/map',       label: 'Live Map',  icon: 'fa-map',         public: true,  staff: false },
     { path: '/report',    label: 'Report',    icon: 'fa-circle-plus', public: false, staff: false },
     { path: '/dashboard', label: 'Dashboard', icon: 'fa-chart-line',  public: false, staff: false },
+    { path: '/mcp-flow',  label: 'MCP Flow',  icon: 'fa-network-wired', public: false, staff: true },
     { path: '/about',     label: 'About',     icon: 'fa-circle-info', public: true,  staff: false },
   ];
 

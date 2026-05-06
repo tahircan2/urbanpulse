@@ -12,3 +12,4 @@ tenacity>=8.4.0
 structlog>=24.2.0
 pyyaml>=6.0.0
 tzdata>=2024.1
+mcp>=1.2.0

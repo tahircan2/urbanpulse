@@ -44,6 +44,10 @@ class Settings(BaseSettings):
     # ── LangGraph ─────────────────────────────────────────────────────────
     langgraph_model: str = "gpt-4o-mini"
 
+    # ── MCP (Model Context Protocol) ──────────────────────────────────────
+    mcp_enabled:   bool = True      # Enable MCP tool mode (dual mode: True=prefer MCP, False=direct only)
+    mcp_auto_connect: bool = True   # Auto-connect MCP client on startup
+
     @property
     def is_production(self) -> bool:
         return self.environment.lower() == "production"
